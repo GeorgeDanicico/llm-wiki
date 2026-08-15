@@ -69,6 +69,27 @@ Expected points:
 
 ## Infrastructure
 
+### INFRA-TB-001 — How do refill rate and bucket capacity affect a token bucket?
+
+Source: [Token buckets and network bandwidth shaping](../wiki/infrastructure/token-buckets-and-network-bandwidth-shaping.md)
+
+Expected points:
+
+- Refill rate sets the sustainable long-term throughput.
+- Capacity bounds how many unused tokens can accumulate.
+- Accumulated tokens permit a bounded burst.
+- An operation without enough tokens is rejected, delayed, or queued according to policy.
+
+### INFRA-TB-002 — How does network bandwidth shaping differ from traffic policing?
+
+Source: [Token buckets and network bandwidth shaping](../wiki/infrastructure/token-buckets-and-network-bandwidth-shaping.md)
+
+Expected points:
+
+- Shaping normally queues and delays excess traffic to smooth its transmission rate.
+- Policing typically drops or marks traffic that exceeds the configured policy.
+- A token bucket can measure whether traffic conforms to an average rate while allowing bounded bursts.
+
 ### What roles do recursive, root, TLD, and authoritative DNS servers play?
 
 Source: [Domain Name System](../wiki/infrastructure/dns.md)

@@ -12,6 +12,7 @@ The initial collection was imported on 2026-08-11 from the local `gd/Notes` repo
 | [`notes/technologies/docker.md`](notes/technologies/docker.md) | Personal technology note | [Dockerfile multi-stage builds](../wiki/infrastructure/dockerfile-multi-stage-builds.md) |
 | [`notes/technologies/domain-name-server-dns.md`](notes/technologies/domain-name-server-dns.md) | Personal technology note | [DNS](../wiki/infrastructure/dns.md) |
 | [`notes/technologies/quarkus.md`](notes/technologies/quarkus.md) | Empty personal technology note | Not compiled; retained as an empty placeholder |
+| [`notes/technologies/token-buckets-and-network-bandwidth-shaping.md`](notes/technologies/token-buckets-and-network-bandwidth-shaping.md) | AI-assisted conversational note | [Token buckets and network bandwidth shaping](../wiki/infrastructure/token-buckets-and-network-bandwidth-shaping.md) |
 
 The source text may be incomplete or inaccurate. A source's presence records what was captured, not that every statement has been externally verified.
 

@@ -5,7 +5,7 @@ This index is the entry point for the compiled knowledge base. Source material i
 ## Topics
 
 - [Distributed systems](distributed-systems/index.md) — event time, stream windows, stream joins, and fault tolerance.
-- [Infrastructure](infrastructure/index.md) — DNS and container image construction.
+- [Infrastructure](infrastructure/index.md) — DNS, network traffic control, and container image construction.
 - [Frameworks](frameworks/index.md) — framework-specific knowledge; currently awaiting substantive source material.
 
 ## Library
