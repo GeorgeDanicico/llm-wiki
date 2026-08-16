@@ -7,6 +7,12 @@
 - Registered two stable active-recall questions.
 - Marked the captured claims as not externally verified.
 
+## 2026-08-13 — Agent interaction and GitHub workflow
+
+- Defined capture, inquiry, and quiz modes for direct and stateless Telegram interactions.
+- Required one atomic pull request for every knowledge capture and documented safe synchronization with `origin/main`.
+- Kept Telegram scheduling and delivery outside the wiki repository.
+
 ## 2026-08-11 — Initial Notex/Notes import
 
 - Created the Git-and-Markdown wiki structure.
