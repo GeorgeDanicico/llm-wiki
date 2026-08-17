@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-08-15 — Token buckets and network bandwidth shaping
+
+- Captured an AI-assisted conversational explanation of token-bucket rate limiting and network bandwidth shaping.
+- Added a synthesized infrastructure page covering refill rate, bucket capacity, bounded bursts, bandwidth shaping, and the distinction from traffic policing.
+- Registered two stable active-recall questions.
+- Marked the captured claims as not externally verified.
+
 ## 2026-08-13 — Agent interaction and GitHub workflow
 
 - Defined capture, inquiry, and quiz modes for direct and stateless Telegram interactions.
