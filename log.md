@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-08-18 — Kafka consumer and durability article ingestion
+
+- Captured the supplied Kafka article as an immutable article source.
+- Added a source-oriented library entry and a synthesized distributed-systems page.
+- Connected consumer positions, committed offsets, rebalancing, replay behavior, producer acknowledgements, ISR policy, page-cache persistence, and exactly-once boundaries.
+- Added five active-recall and failure-diagnosis questions.
+- Compared version-sensitive claims with Apache Kafka 4.3 documentation and recorded protocol/default caveats.
+
 ## 2026-08-15 — Token buckets and network bandwidth shaping
 
 - Captured an AI-assisted conversational explanation of token-bucket rate limiting and network bandwidth shaping.

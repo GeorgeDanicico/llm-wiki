@@ -7,6 +7,7 @@ Knowledge about distributed data processing and stream-processing semantics.
 - [Stream joins](stream-joins.md) — stream–stream correlation and stream–table enrichment.
 - [Time-dependent stream joins](time-dependent-stream-joins.md) — out-of-order events and changing reference data.
 - [Stream-processing fault tolerance](stream-processing-fault-tolerance.md) — why recovery differs between bounded batch input and continuous streams.
+- [Kafka consumer progress and durability](kafka-consumer-progress-and-durability.md) — how committed offsets, rebalancing, acknowledgement modes, ISR policy, and idempotence combine into end-to-end behavior.
 
-Primary source: [personal Chapter 11 book notes](../../sources/books/designing-data-intensive-applications.md)
+Sources: [personal Chapter 11 book notes](../../sources/books/designing-data-intensive-applications.md) and [Kafka consumers and durability article](../../sources/articles/kafka-consumers-and-durability.md)
 
