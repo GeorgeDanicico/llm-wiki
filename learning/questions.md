@@ -67,6 +67,61 @@ Expected points:
 - Retries can duplicate external side effects even if internal state is restored consistently.
 - Progress, restored state, replay, and output commit behavior all affect the guarantee.
 
+### Why does a Kafka consumer commit offset `103` after completing records `100` through `102`?
+
+Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#current-position-versus-committed-offset)
+
+Expected points:
+
+- A committed offset identifies the next record to consume, not the last completed record.
+- Committing `103` asserts that all relevant effects for earlier offsets are complete.
+- Recovery resumes at `103`.
+- Concurrent processing must not commit past an unfinished lower offset.
+
+### A Kafka handler finishes its database update and crashes before committing its offset. What happens next?
+
+Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#the-processcommit-failure-boundary)
+
+Expected points:
+
+- The replacement consumer resumes from the older committed offset.
+- The record can be delivered and processed again.
+- This is the normal at-least-once failure window.
+- The database effect needs an idempotency key, uniqueness rule, inbox record, or equivalent deduplication mechanism.
+
+### Why is `acks=all` insufficient without considering `min.insync.replicas`?
+
+Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#broker-side-durability)
+
+Expected points:
+
+- “All” means all replicas currently in the ISR, not the configured replication factor.
+- A shrunken ISR can contain only the leader.
+- `min.insync.replicas` rejects the write when too few in-sync copies are available.
+- The rejection exchanges write availability for stronger durability.
+
+### What does Kafka producer idempotence protect, and what does it not protect?
+
+Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#broker-side-durability)
+
+Expected points:
+
+- It prevents producer retries from appending duplicate copies within its supported scope.
+- It works with producer acknowledgement and retry constraints.
+- It does not deduplicate a consumer's database writes or external API calls.
+- External effects still require their own idempotency or atomic inbox/outbox pattern.
+
+### Why can a healthy Kafka consumer be removed from its group during a long computation?
+
+Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#rebalancing-is-also-a-replay-boundary)
+
+Expected points:
+
+- Liveness heartbeats and application progress are related but distinct.
+- Exceeding `max.poll.interval.ms` can mark the consumer as stalled even if its process is alive.
+- The partition can move to another consumer, creating a replay boundary.
+- Processing time, poll structure, and timeout settings must be designed together and checked against the selected group protocol.
+
 ## Infrastructure
 
 ### INFRA-TB-001 — How do refill rate and bucket capacity affect a token bucket?
