@@ -8,6 +8,6 @@ Knowledge about distributed data processing and stream-processing semantics.
 - [Time-dependent stream joins](time-dependent-stream-joins.md) — out-of-order events and changing reference data.
 - [Stream-processing fault tolerance](stream-processing-fault-tolerance.md) — why recovery differs between bounded batch input and continuous streams.
 - [Kafka consumer progress and durability](kafka-consumer-progress-and-durability.md) — how committed offsets, rebalancing, acknowledgement modes, ISR policy, and idempotence combine into end-to-end behavior.
+- [Payment processing with Spring and Kafka](payment-processing-with-spring-and-kafka.md) — idempotent acceptance, transactional outbox, external-provider ambiguity, consumer replay, and compensation.
 
-Sources: [personal Chapter 11 book notes](../../sources/books/designing-data-intensive-applications.md) and [Kafka consumers and durability article](../../sources/articles/kafka-consumers-and-durability.md)
-
+Sources: [personal Chapter 11 book notes](../../sources/books/designing-data-intensive-applications.md), [Kafka consumers and durability article](../../sources/articles/kafka-consumers-and-durability.md), and [Senior Java and Spring Boot interview notes](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md)
