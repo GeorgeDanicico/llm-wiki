@@ -1,5 +1,14 @@
 # Wiki Log
 
+## 2026-08-29 — Senior Java and Spring interview knowledge
+
+- Captured the supplied synthesized interview document as immutable source material.
+- Organized its knowledge into Java/JVM, concurrent caching, Spring Framework, data access, reliability and observability, and distributed payment-workflow pages.
+- Added an interview-preparation guide that maps the categories and records high-value distinctions and coverage gaps.
+- Linked Kafka delivery and durability material to the existing Kafka page to make overlap and guarantee boundaries explicit.
+- Added eight stable active-recall and diagnosis questions.
+- Marked version-sensitive Java, Spring, Hibernate, and Kafka behavior as requiring confirmation against deployed versions; no independent claim-by-claim verification was performed.
+
 ## 2026-08-18 — Kafka consumer and durability article ingestion
 
 - Captured the supplied Kafka article as an immutable article source.
