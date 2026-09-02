@@ -2,7 +2,103 @@
 
 Questions are grouped by topic and include recall, explanation, comparison, application, and diagnosis prompts.
 
+## Java and JVM
+
+### JAVA-CONC-001 — Why is `counter++` unsafe when `counter` is volatile?
+
+Source: [Concurrency and the Java Memory Model](../wiki/java/concurrency-and-the-java-memory-model.md)
+
+Expected points:
+
+- Volatile provides visibility and ordering but not mutual exclusion.
+- Increment is a compound read-modify-write sequence.
+- Two threads can read the same old value and overwrite one another's updates.
+- Use an atomic operation or a shared locking protocol for the required invariant.
+
+### JAVA-JVM-001 — What evidence separates high allocation from excessive retention?
+
+Source: [JVM memory, GC, and production profiling](../wiki/java/jvm-memory-gc-and-production-profiling.md)
+
+Expected points:
+
+- Allocation rate measures bytes created over time.
+- High allocation can coexist with a stable live set when most objects die young.
+- A rising post-GC occupancy baseline under comparable load suggests retention.
+- Dominators and paths to GC roots help explain why retained objects remain reachable.
+
+### JAVA-CACHE-001 — How can one JVM prevent many callers from loading the same missing cache key?
+
+Source: [Concurrent in-memory caching](../wiki/java/concurrent-in-memory-caching.md)
+
+Expected points:
+
+- Atomically install one in-flight future per key.
+- Later callers share the existing future instead of starting another load.
+- Remove the in-flight entry conditionally after success or failure.
+- This coordinates only one JVM; lifecycle bounds and cross-instance behavior remain separate concerns.
+
+## Spring Framework
+
+### SPRING-TX-001 — Why can a transactional method fail to start a transaction during self-invocation?
+
+Source: [Spring transactions, beans, and scopes](../wiki/frameworks/spring-transactions-beans-and-scopes.md)
+
+Expected points:
+
+- Declarative transactions normally depend on calls passing through a Spring proxy.
+- A direct same-object call bypasses that proxy.
+- The method body still executes, but its proxy advice is not applied.
+- Put the boundary on an externally invoked method or move the operation to another bean.
+
+### SPRING-SCOPE-001 — What happens when a prototype bean is injected into a singleton?
+
+Source: [Spring transactions, beans, and scopes](../wiki/frameworks/spring-transactions-beans-and-scopes.md#scope-traps)
+
+Expected points:
+
+- The prototype is created when the singleton is constructed.
+- The singleton retains that same instance.
+- Ordinary method calls do not trigger another container lookup.
+- Use `ObjectProvider`, method injection, or an appropriate scoped proxy when a fresh instance is required.
+
+## Data Access
+
+### DATA-JPA-001 — How do you prove N+1 instead of inferring it from entity mappings?
+
+Source: [JPA and database performance diagnosis](../wiki/data-access/jpa-and-database-performance-diagnosis.md)
+
+Expected points:
+
+- Trace one representative request.
+- Count executed SQL statements and group normalized query shapes.
+- Look for repeated child queries with varying identifiers.
+- Measure database time, entity loading, mapping, and serialization before choosing a correction.
+
+## Reliability and Operations
+
+### REL-RES-001 — How do circuit breakers, bulkheads, and load shedding differ?
+
+Source: [Service resilience and observability](../wiki/reliability/service-resilience-and-observability.md)
+
+Expected points:
+
+- A circuit breaker fails fast when recent dependency outcomes indicate it is unhealthy.
+- A bulkhead isolates concurrency or resource capacity between operations.
+- Load shedding rejects work when safe local capacity is exhausted.
+- The controls can work together and do not replace deadlines or idempotency.
+
 ## Distributed Systems
+
+### DIST-PAY-001 — Why does Kafka exactly-once processing not make a provider charge exactly once?
+
+Source: [Payment processing with Spring and Kafka](../wiki/distributed-systems/payment-processing-with-spring-and-kafka.md)
+
+Expected points:
+
+- Kafka's guarantee applies only to supported Kafka-contained boundaries.
+- An external HTTP side effect is outside the Kafka transaction.
+- A timeout can hide a successful provider charge and trigger replay.
+- Stable provider idempotency keys, conditional local state, and reconciliation protect the business effect.
 
 ### What is the difference between event time and processing time?
 
@@ -179,6 +275,27 @@ Expected points:
 - The consumer and worker must still handle duplicate delivery idempotently.
 
 ## Infrastructure
+
+### INFRA-TB-001 — How do refill rate and bucket capacity affect a token bucket?
+
+Source: [Token buckets and network bandwidth shaping](../wiki/infrastructure/token-buckets-and-network-bandwidth-shaping.md)
+
+Expected points:
+
+- Refill rate sets the sustainable long-term throughput.
+- Capacity bounds how many unused tokens can accumulate.
+- Accumulated tokens permit a bounded burst.
+- An operation without enough tokens is rejected, delayed, or queued according to policy.
+
+### INFRA-TB-002 — How does network bandwidth shaping differ from traffic policing?
+
+Source: [Token buckets and network bandwidth shaping](../wiki/infrastructure/token-buckets-and-network-bandwidth-shaping.md)
+
+Expected points:
+
+- Shaping normally queues and delays excess traffic to smooth its transmission rate.
+- Policing typically drops or marks traffic that exceeds the configured policy.
+- A token bucket can measure whether traffic conforms to an average rate while allowing bounded bursts.
 
 ### What roles do recursive, root, TLD, and authoritative DNS servers play?
 
