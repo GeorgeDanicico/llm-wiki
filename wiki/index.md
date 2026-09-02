@@ -4,7 +4,7 @@ This index is the entry point for the compiled knowledge base. Source material i
 
 ## Topics
 
-- [Distributed systems](distributed-systems/index.md) — event time, stream windows, stream joins, and fault tolerance.
+- [Distributed systems](distributed-systems/index.md) — event time, stream processing, fault tolerance, idempotency, and safe external side effects.
 - [Infrastructure](infrastructure/index.md) — DNS and container image construction.
 - [Frameworks](frameworks/index.md) — framework-specific knowledge; currently awaiting substantive source material.
 
@@ -20,4 +20,3 @@ This index is the entry point for the compiled knowledge base. Source material i
 ## Navigation notes
 
 Start with a topic index, then follow links to focused concept pages and their cited raw sources. Use ordinary text search when the indexes are not enough.
-
