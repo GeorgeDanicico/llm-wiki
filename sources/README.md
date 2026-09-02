@@ -20,5 +20,6 @@ The initial collection was imported on 2026-08-11 from the local `gd/Notes` repo
 | --- | --- | --- | --- |
 | [`articles/kafka-consumers-and-durability.md`](articles/kafka-consumers-and-durability.md) | Technical article | 2026-08-18 | [Library entry](../wiki/library/articles/kafka-consumers-and-durability.md), [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md) |
 | [`notes/interview-preparation/java-spring-senior-interview-knowledge.md`](notes/interview-preparation/java-spring-senior-interview-knowledge.md) | Synthesized interview notes | 2026-08-29 | [Library entry](../wiki/library/notes/java-spring-senior-interview-knowledge.md), [Interview guide](../wiki/interview-preparation/senior-java-spring-interview-guide.md) |
+| [`designs/payment-idempotency-design-summary.md`](designs/payment-idempotency-design-summary.md) | Design summary | 2026-08-17 | [Library entry](../wiki/library/designs/payment-idempotency-design-summary.md), [Payment idempotency and double-charge prevention](../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md) |
 
 The source text may be incomplete or inaccurate. A source's presence records what was captured, not that every statement has been externally verified.

@@ -8,6 +8,7 @@ This technical explainer connects Kafka's consumer model to its storage guarante
 
 - [Kafka consumer progress and durability](../../distributed-systems/kafka-consumer-progress-and-durability.md)
 - [Stream-processing fault tolerance](../../distributed-systems/stream-processing-fault-tolerance.md), especially replay and external-side-effect boundaries
+- [Payment idempotency and double-charge prevention](../../distributed-systems/payment-idempotency-and-double-charge-prevention.md), where Kafka redelivery makes idempotent handlers necessary
 
 ## Source status
 

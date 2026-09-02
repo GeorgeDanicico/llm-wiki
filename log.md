@@ -1,5 +1,11 @@
 # Wiki Log
 
+## 2026-09-02 — Payment idempotency branch synchronization
+
+- Merged the latest `origin/main` knowledge into the payment-idempotency branch.
+- Preserved both payment pages and their distinct source relationships in the distributed-systems and library indexes.
+- Consolidated duplicate Kafka source, library, review-question, and log entries introduced by parallel ingestion histories.
+
 ## 2026-08-29 — Senior Java and Spring interview knowledge
 
 - Captured the supplied synthesized interview document as immutable source material.
@@ -16,6 +22,14 @@
 - Connected consumer positions, committed offsets, rebalancing, replay behavior, producer acknowledgements, ISR policy, page-cache persistence, and exactly-once boundaries.
 - Added five active-recall and failure-diagnosis questions.
 - Compared version-sensitive claims with Apache Kafka 4.3 documentation and recorded protocol/default caveats.
+
+## 2026-08-17 — Payment idempotency design ingestion
+
+- Captured the supplied payment-idempotency design summary as an immutable design source.
+- Added source-oriented design indexes and a library entry that records the proposal's unverified status.
+- Compiled the use case into a distributed-systems page covering the order-scoped invariant, payment generations, atomic serialization, queue redelivery, provider idempotency, the transactional outbox, and reconciliation.
+- Added five active-recall and failure-diagnosis questions.
+- Documented provider-specific idempotency behavior as an implementation assumption requiring verification.
 
 ## 2026-08-15 — Token buckets and network bandwidth shaping
 
