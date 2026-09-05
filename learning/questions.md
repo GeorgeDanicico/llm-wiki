@@ -89,6 +89,39 @@ Expected points:
 
 ## Distributed Systems
 
+### DIST-SAGA-001 — Why is a SAGA compensation not equivalent to a database rollback?
+
+Source: [SAGA pattern for distributed workflows](../wiki/distributed-systems/saga-pattern.md#core-contract)
+
+Expected points:
+
+- Each participating service has already committed its own local transaction.
+- Compensation is a new business operation that attempts to counter an earlier effect.
+- The original effect may already have been observed and may be costly, delayed, or impossible to reverse perfectly.
+- The workflow therefore provides eventual recovery, not distributed ACID atomicity or isolation.
+
+### DIST-SAGA-002 — How should a SAGA handle a timeout with an unknown remote outcome?
+
+Source: [SAGA pattern for distributed workflows](../wiki/distributed-systems/saga-pattern.md#durable-state-is-the-recovery-authority)
+
+Expected points:
+
+- A timeout does not prove that the remote transaction failed.
+- Persist the unresolved state rather than reporting confirmed failure.
+- Query remote status or retry with the same operation-specific idempotency key.
+- Do not start a duplicate effect or compensation until the policy has resolved the ambiguity.
+
+### DIST-SAGA-003 — Why does a transactional outbox still require idempotent consumers?
+
+Source: [SAGA pattern for distributed workflows](../wiki/distributed-systems/saga-pattern.md#idempotency-and-message-delivery)
+
+Expected points:
+
+- The outbox atomically records local state and the intent to publish.
+- A publisher can send the message and crash before marking the outbox record sent.
+- Publication can therefore happen again under at-least-once delivery.
+- An inbox, processed-message record, or equivalent idempotent business effect must absorb duplicates.
+
 ### DIST-PAY-001 — Why does Kafka exactly-once processing not make a provider charge exactly once?
 
 Source: [Payment processing with Spring and Kafka](../wiki/distributed-systems/payment-processing-with-spring-and-kafka.md)
