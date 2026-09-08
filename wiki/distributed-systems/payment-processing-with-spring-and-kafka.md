@@ -32,6 +32,8 @@ Eventual consistency appears between API acceptance and consumption, provider co
 
 Inventory can use an atomic conditional decrement to prevent overselling. Longer workflows may require expiring reservations and a saga policy such as refund, void, or backorder when payment and inventory outcomes diverge. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#1010-inventory-concurrency) [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#1011-partial-failure-recovery-table)
 
+For the general coordination, compensation, durability, and isolation model, see [SAGA pattern for distributed workflows](saga-pattern.md).
+
 ## Source assessment
 
 The captured source gives a coherent at-least-once design and explicitly limits Kafka's exactly-once claims at external boundaries. Configuration examples such as replication factor, acknowledgements, ISR minimums, consumer timing, and rebalance behavior are version- and deployment-sensitive. This page preserves that uncertainty and links the existing Kafka durability page for separately verified broker and consumer details.

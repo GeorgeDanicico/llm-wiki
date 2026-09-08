@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-09-05 — SAGA pattern note ingestion
+
+- Captured the supplied SAGA pattern document as an immutable user-supplied technical note with provenance metadata.
+- Added a distributed-systems synthesis covering coordination styles, durable workflow state, retry classification, unknown outcomes, idempotency, transactional outboxes, compensation failure, isolation limits, and observability.
+- Connected the general SAGA model to the existing payment-workflow material and updated source, library, topic, and top-level indexes.
+- Added three stable active-recall questions.
+- Marked authorship and prior verification as unknown; treated coordination-style guidance as heuristic and implementation-specific guarantees as requiring separate verification.
+
 ## 2026-09-02 — Payment idempotency branch synchronization
 
 - Merged the latest `origin/main` knowledge into the payment-idempotency branch.
