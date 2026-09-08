@@ -61,3 +61,11 @@
 - Retained the empty Quarkus note as a source placeholder without inventing knowledge.
 - Added eleven active-recall questions.
 - Marked incomplete or oversimplified source claims where they need later verification.
+
+## 2026-09-08 — Optimistic locking note ingestion
+
+- Preserved the supplied learning note verbatim beneath capture metadata as a new immutable source.
+- Added a focused data-access synthesis and a source-oriented library entry covering lost updates, atomic version checks, intent-preserving retries, locking trade-offs, JPA, and three-way form reconciliation.
+- Updated topic, library-note, source-category, and root indexes; registered five stable review questions (DATA-OL-001 through DATA-OL-005).
+- Marked claims as not independently verified and database/JPA details as implementation-dependent; no conflicting wiki claims were identified.
+- Validation: checked 289 local links and anchors, unique question identifiers, exact source-body preservation, and Git whitespace checks; the repository has no configured automated test suite.
