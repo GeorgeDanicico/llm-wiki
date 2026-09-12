@@ -4,7 +4,7 @@
 
 An end-to-end deadline should allocate time across connection acquisition, connection establishment, TLS, response reading, retries, and remaining application work. Long timeouts retain threads, connections, and memory; each downstream attempt must leave enough time for a controlled caller response. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#81-timeouts-and-deadlines)
 
-Retries multiply traffic: two retries plus the initial attempt can produce three downstream requests. Retry bounded transient failures with backoff and jitter, cap attempts and elapsed time, respect retry budgets, and assign retry responsibility to one layer. A non-idempotent mutation is not safely retryable merely because a timeout occurred. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#82-retries)
+Retries multiply traffic: two retries plus the initial attempt can produce three downstream requests. Retry bounded transient failures with backoff and jitter, cap attempts and elapsed time, respect retry budgets, and assign retry responsibility to one layer. A non-idempotent mutation is not safely retryable merely because a timeout occurred. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#82-retries) [Cache-load retry coordination](../../sources/notes/reliability/cache-stampede-study-notes.md#4-failed-loads-retries-and-stale-while-revalidate)
 
 | Control | Purpose |
 | --- | --- |
@@ -14,6 +14,8 @@ Retries multiply traffic: two retries plus the initial attempt can produce three
 | Idempotency | Make repeated attempts converge on one intended business effect |
 
 A circuit breaker is a caller-side state decision, not a physical disconnection. Autoscaling is not a bulkhead and can worsen a downstream outage. An idempotency claim must be atomic—use a unique constraint, conditional insert, or transactional transition rather than check-then-insert. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#83-circuit-breaker) [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#86-idempotency)
+
+Under a cache outage or a cache-miss storm, bound database concurrency, keep any waiting queue finite, and shed work beyond the safe residual backend capacity. The cache-stampede study note treats `503 Service Unavailable` with `Retry-After` as appropriate for temporary capacity loss and `429 Too Many Requests` as appropriate for deliberate client/request limiting; those response choices must still fit the service contract. [Source](../../sources/notes/reliability/cache-stampede-study-notes.md#9-redis-outage-and-load-shedding) See also [Cache stampedes](cache-stampedes.md).
 
 ## Observability model
 

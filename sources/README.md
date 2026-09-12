@@ -16,10 +16,11 @@ The initial collection was imported on 2026-08-11 from the local `gd/Notes` repo
 
 ## Later captures
 
-Data-access notes are cataloged in the [data-access source index](notes/data-access/README.md).
+Data-access notes are cataloged in the [data-access source index](notes/data-access/README.md). Cache-resilience notes are cataloged in the [reliability source index](notes/reliability/README.md).
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/reliability/cache-stampede-study-notes.md`](notes/reliability/cache-stampede-study-notes.md) | User-supplied study note | 2026-09-12 | [Library entry](../wiki/library/notes/cache-stampedes.md), [Cache stampedes](../wiki/reliability/cache-stampedes.md) |
 | [`notes/data-access/optimistic-locking.md`](notes/data-access/optimistic-locking.md) | User-supplied learning note | 2026-09-08 | [Library entry](../wiki/library/notes/optimistic-locking.md), [Optimistic locking](../wiki/data-access/optimistic-locking.md) |
 | [`notes/distributed-systems/saga-pattern.md`](notes/distributed-systems/saga-pattern.md) | User-supplied technical note | 2026-09-05 | [Library entry](../wiki/library/notes/saga-pattern.md), [SAGA pattern for distributed workflows](../wiki/distributed-systems/saga-pattern.md) |
 | [`articles/kafka-consumers-and-durability.md`](articles/kafka-consumers-and-durability.md) | Technical article | 2026-08-18 | [Library entry](../wiki/library/articles/kafka-consumers-and-durability.md), [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md) |

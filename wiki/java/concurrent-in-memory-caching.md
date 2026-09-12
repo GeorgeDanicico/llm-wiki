@@ -10,7 +10,11 @@ The map protects its own structure, not mutable values stored inside it. Prefer 
 
 An in-process stampede guard can store one in-flight `CompletableFuture` per key. The first caller performs the load and other callers share its future. Remove the in-flight entry after success or failure so completed futures do not accumulate and later calls can retry failures. Conditional removal prevents one completion from deleting a newer attempt. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#44-preventing-a-cache-stampede-in-one-jvm)
 
+The newer cache-stampede study note supports the same local per-key coalescing pattern and adds that the owner should retain retry responsibility so failed waiters do not fan out into a retry storm. [Source](../../sources/notes/reliability/cache-stampede-study-notes.md#2-single-flight--request-coalescing) [Source](../../sources/notes/reliability/cache-stampede-study-notes.md#4-failed-loads-retries-and-stale-while-revalidate)
+
 This mechanism coordinates only callers in one JVM. Multiple instances may still duplicate a load. A distributed lock is justified only when duplicate work is more expensive than the coordination, failure, and operational complexity it introduces. After acquiring cross-instance coordination, recheck the shared result before repeating the load. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#45-cross-instance-coordination)
+
+For the wider cache, freshness, and capacity context, see [Cache stampedes](../reliability/cache-stampedes.md).
 
 ## Correctness and lifecycle
 

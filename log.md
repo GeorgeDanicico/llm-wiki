@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-09-12 — Cache-stampede study-note ingestion
+
+- Preserved the supplied cache-stampede study note verbatim beneath capture metadata as a new immutable reliability source.
+- Added a focused reliability synthesis covering stampede detection, per-key coalescing, TTL and retry jitter, stale-while-revalidate, distributed-lock caveats, bounded downstream work, and observability.
+- Linked the new source to the existing local Java cache and general resilience pages; updated source, library, topic, and root indexes; and registered four stable review questions (REL-CACHE-001 through REL-CACHE-004).
+- Marked operational defaults, figures, and response recommendations as unverified and implementation-dependent; no conflicting wiki claims were identified.
+
 ## 2026-09-05 — SAGA pattern note ingestion
 
 - Captured the supplied SAGA pattern document as an immutable user-supplied technical note with provenance metadata.
