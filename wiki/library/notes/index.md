@@ -1,5 +1,6 @@
 # Notes
 
+- [Cache Stampedes — Study Notes](cache-stampedes.md) — user-supplied study note covering cache-miss storms, coalescing, expiry jitter, stale serving, and overload protection.
 - [Optimistic Locking](optimistic-locking.md) — user-supplied learning note covering version checks, safe retries, JPA, and stale-form reconciliation.
 
 - [SAGA Pattern in Distributed Systems](saga-pattern.md) — user-supplied technical note covering distributed workflow coordination, durable recovery, compensation, idempotency, delivery, and isolation.

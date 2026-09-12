@@ -142,6 +142,49 @@ Expected points:
 - Load shedding rejects work when safe local capacity is exhausted.
 - The controls can work together and do not replace deadlines or idempotency.
 
+### REL-CACHE-001 — Why does a longer TTL not by itself prevent a cache stampede?
+
+Source: [Cache stampedes](../wiki/reliability/cache-stampedes.md#failure-mode)
+
+Expected points:
+
+- A cache stampede is concurrent duplicate work after the same miss or expiration.
+- A longer TTL can make that event less frequent.
+- It does not coordinate the callers that arrive when the hot key eventually misses.
+- TTL must meet the data freshness contract.
+
+### REL-CACHE-002 — How do TTL jitter and single-flight address different cache failure modes?
+
+Source: [Cache stampedes](../wiki/reliability/cache-stampedes.md#complementary-controls)
+
+Expected points:
+
+- TTL jitter spreads the expiration of many independently keyed entries.
+- Single-flight shares one in-flight load among callers for the same key.
+- Jitter does not stop a hot key’s duplicate refreshes.
+- Single-flight does not create backend capacity for many distinct misses.
+
+### REL-CACHE-003 — What must protect a database during a Redis outage?
+
+Source: [Cache stampedes](../wiki/reliability/cache-stampedes.md#protecting-a-downstream-during-cache-failure)
+
+Expected points:
+
+- Treat every request as potential backend work rather than letting cache failure bypass limits.
+- Bound database concurrency and retain only a finite queue.
+- Shed work that exceeds the real residual database capacity.
+- Use coordinated, bounded retries and stale data only when the policy permits it.
+
+### REL-CACHE-004 — Which signals reveal that coalescing is effective and a stampede is occurring?
+
+Source: [Cache stampedes](../wiki/reliability/cache-stampedes.md#observability)
+
+Expected points:
+
+- Track in-flight cache loads, coalesced loads, leader duration, and waiter count.
+- Monitor cache hit and miss behavior together with downstream QPS, pool pressure, latency, and errors.
+- A rise in cache misses, database QPS, and database latency together is a strong stampede signal.
+
 ## Distributed Systems
 
 ### DIST-SAGA-001 — Why is a SAGA compensation not equivalent to a database rollback?
