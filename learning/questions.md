@@ -185,6 +185,36 @@ Expected points:
 - Monitor cache hit and miss behavior together with downstream QPS, pool pressure, latency, and errors.
 - A rise in cache misses, database QPS, and database latency together is a strong stampede signal.
 
+### REL-LAT-001 — Why can an average latency hide a poor user experience?
+
+Source: [Latency averages and percentiles](../wiki/reliability/latency-averages-and-percentiles.md#why-an-average-is-insufficient)
+
+Expected points:
+
+- An average combines fast and slow requests into one aggregate number.
+- A small fraction of very slow requests can be obscured by many fast ones.
+- Percentiles show how latency is distributed across request groups.
+
+### REL-LAT-002 — What does a stable p50 with rising p90 and p95 indicate?
+
+Source: [Latency averages and percentiles](../wiki/reliability/latency-averages-and-percentiles.md#reading-the-distribution)
+
+Expected points:
+
+- Typical requests can remain stable while a broader group is slowing down.
+- The change is evidence of a worsening observed latency distribution, not proof of its cause.
+- Inspect traces, queues, dependencies, and resource metrics to identify the cause.
+
+### REL-LAT-003 — How can a small slow-call rate affect many page loads?
+
+Source: [Latency averages and percentiles](../wiki/reliability/latency-averages-and-percentiles.md#compounding-page-load-risk)
+
+Expected points:
+
+- Multiple independent calls give each page load multiple chances to include a slow call.
+- With ten independent calls at five-percent slow probability, at least one is slow about 40% of the time.
+- Shared dependencies can invalidate the independence assumption, so the calculation is illustrative.
+
 ## Distributed Systems
 
 ### DIST-SAGA-001 — Why is a SAGA compensation not equivalent to a database rollback?
