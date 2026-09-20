@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-09-20 — Latencies-and-percentiles note ingestion
+
+- Preserved the supplied latency study note verbatim beneath capture metadata as a new immutable reliability source.
+- Added a focused synthesis covering averages versus latency distributions, p50 through p99 interpretation, trends, and compounding slow-call probability.
+- Connected the note to service observability, updated source, library, topic, and root indexes, and registered three stable review questions (REL-LAT-001 through REL-LAT-003).
+- Marked percentile guidance, example values, thresholds, and the independence calculation as illustrative and unverified; recorded the missing aggregation, segmentation, and root-cause detail; no conflicting wiki claims were identified.
+
 ## 2026-09-12 — Cache-stampede study-note ingestion
 
 - Preserved the supplied cache-stampede study note verbatim beneath capture metadata as a new immutable reliability source.

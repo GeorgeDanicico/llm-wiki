@@ -27,6 +27,8 @@ Correlate the signals with trace and span identifiers. Normalize metric routes a
 
 Instrument HTTP rate, errors, latency percentiles, and active requests; JVM CPU, memory, allocation, GC, and thread state; executor utilization, queue depth, and rejections; database pool acquisition and SQL duration; and downstream latency, timeout category, retry count, breaker state, and bulkhead rejection. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#93-jvm-and-executor-metrics)
 
+An average can conceal a small but impactful set of slow requests, so track latency distributions as well as aggregate cost. Read p50 through p99 together and alert on both thresholds and trends; a rising p90 or p95 with a stable p50 can show that latency is worsening for more users before the p99 signal is obvious. [Source](../../sources/notes/reliability/latencies-and-percentiles.md#why-averages-can-mislead) [Source](../../sources/notes/reliability/latencies-and-percentiles.md#practical-monitoring) See also [Latency averages and percentiles](latency-averages-and-percentiles.md).
+
 Trace interpretation must separate queueing and resource acquisition from actual work. A long SQL span locates time but does not distinguish locks, I/O, CPU, or a poor plan without database evidence. Unexplained root-span self time can indicate application CPU, internal queueing, locks, serialization, or missing instrumentation. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#96-trace-interpretation)
 
 ## Health and incident reasoning
