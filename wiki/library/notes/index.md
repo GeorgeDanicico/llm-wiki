@@ -1,5 +1,6 @@
 # Notes
 
+- [Tokens: the gist](tokens-gist.md) — user-supplied explanatory note about language-model text tokens and why model-specific counts matter.
 - [Latencies: Averages and Percentiles](latencies-and-percentiles.md) — user-supplied study note covering tail latency, percentiles, trend monitoring, and multi-call amplification.
 - [Cache Stampedes — Study Notes](cache-stampedes.md) — user-supplied study note covering cache-miss storms, coalescing, expiry jitter, stale serving, and overload protection.
 - [Optimistic Locking](optimistic-locking.md) — user-supplied learning note covering version checks, safe retries, JPA, and stale-form reconciliation.

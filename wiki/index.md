@@ -4,6 +4,7 @@ This index is the entry point for the compiled knowledge base. Source material i
 
 ## Topics
 
+- [Language models](language-models/index.md) — text tokens, tokenization, and model-dependent token counts.
 - [Java and JVM](java/index.md) — concurrency, memory behavior, production profiling, and in-process caching.
 - [Frameworks](frameworks/index.md) — Spring transactions, bean lifecycle, dependency resolution, and scopes.
 - [Data access](data-access/index.md) — JPA behavior, optimistic locking, and evidence-driven database performance diagnosis.

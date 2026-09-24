@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-09-25 — Language-model token note ingestion
+
+- Preserved the supplied `tokens-gist.md` wording beneath capture metadata as a new immutable language-model source.
+- Added a focused synthesis and source-oriented library entry on token boundaries, model-specific counts, and practical implications for context, cost, and processing time.
+- Updated source, library, topic, and root indexes and registered two stable review questions (LLM-TOK-001 and LLM-TOK-002).
+- Marked example splits and service-dependent cost and timing claims as unverified; no conflicting wiki claims were identified.
+- Validation: checked 371 local links and anchors, 27 unique registered question IDs, exact source-body preservation, and Git whitespace checks.
+
 ## 2026-09-20 — Latencies-and-percentiles note ingestion
 
 - Preserved the supplied latency study note verbatim beneath capture metadata as a new immutable reliability source.
