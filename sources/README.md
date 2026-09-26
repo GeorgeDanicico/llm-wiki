@@ -16,10 +16,11 @@ The initial collection was imported on 2026-08-11 from the local `gd/Notes` repo
 
 ## Later captures
 
-Data-access notes are cataloged in the [data-access source index](notes/data-access/README.md). Cache-resilience notes are cataloged in the [reliability source index](notes/reliability/README.md).
+Data-access notes are cataloged in the [data-access source index](notes/data-access/README.md). Cache-resilience notes are cataloged in the [reliability source index](notes/reliability/README.md). Language-model notes are cataloged in the [language-model source index](notes/language-models/README.md).
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/language-models/tokens-gist.md`](notes/language-models/tokens-gist.md) | User-supplied explanatory note | 2026-09-25 | [Library entry](../wiki/library/notes/tokens-gist.md), [Text tokens and tokenization](../wiki/language-models/text-tokens-and-tokenization.md) |
 | [`notes/reliability/latencies-and-percentiles.md`](notes/reliability/latencies-and-percentiles.md) | User-supplied study note | 2026-09-20 | [Library entry](../wiki/library/notes/latencies-and-percentiles.md), [Latency averages and percentiles](../wiki/reliability/latency-averages-and-percentiles.md) |
 | [`notes/reliability/cache-stampede-study-notes.md`](notes/reliability/cache-stampede-study-notes.md) | User-supplied study note | 2026-09-12 | [Library entry](../wiki/library/notes/cache-stampedes.md), [Cache stampedes](../wiki/reliability/cache-stampedes.md) |
 | [`notes/data-access/optimistic-locking.md`](notes/data-access/optimistic-locking.md) | User-supplied learning note | 2026-09-08 | [Library entry](../wiki/library/notes/optimistic-locking.md), [Optimistic locking](../wiki/data-access/optimistic-locking.md) |
