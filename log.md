@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-09-27 — Java interview summary ingestion
+
+- Preserved the supplied Java interview summary verbatim beneath capture metadata as a user-supplied chat-summary source.
+- Reused the existing Java map, JVM-memory, and interview-guide pages; added GC reachability and collection-timing details plus focused pages for string identity/interning and task execution/fork-join.
+- Updated the source, library, Java-topic, interview-guide, root, and question indexes; registered five active-recall questions (JAVA-COL-001, JAVA-JVM-002, JAVA-STR-001, and JAVA-EXEC-001 through JAVA-EXEC-002).
+- Checked the principal map, future scheduling, fork/join, string interning, and PC-register claims against Java SE 26 primary API/specification pages; kept OpenJDK internals and scheduling details marked implementation-dependent. No conflicts with the existing notes were found.
+- Validation: original source body preserved byte-for-byte; local Markdown links and anchors, unique review-question IDs, and Git whitespace checks passed.
+
 ## 2026-09-25 — Language-model token note ingestion
 
 - Preserved the supplied `tokens-gist.md` wording beneath capture metadata as a new immutable language-model source.
