@@ -4,7 +4,13 @@
 
 The heap contains objects and arrays; metaspace contains class metadata; each platform thread has its own stack. Native-memory consumers also include direct buffers, native libraries, memory-mapped files, JIT code cache, and collector data structures. Static references can point to ordinary heap objects, so “static data lives in metaspace” is an unsafe simplification. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#21-main-jvm-memory-areas)
 
+Garbage collection can reclaim a heap object after it is no longer reachable from GC roots. Leaving a lexical scope does not make an object collectible if another live reference still reaches it, and collection timing is nondeterministic. [Source](../../sources/notes/interview-preparation/java-interview-preparation-summary.md)
+
 Interpret the exact `OutOfMemoryError` before selecting a diagnostic. `Java heap space`, `Metaspace`, `Direct buffer memory`, `GC overhead limit exceeded`, and `Unable to create native thread` point in different directions. A heap dump is relevant to heap retention but may not explain native-thread or direct-memory exhaustion. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#22-interpret-the-exact-outofmemoryerror)
+
+## Program-counter register
+
+Each Java thread has its own PC register, which identifies the current bytecode instruction while the thread executes a Java method. The active stack frame identifies the method; the PC register tracks execution within it. Its value is undefined while the thread executes a native method. This is per-thread execution state, not a heap allocation area. [JVMS 2.5.1](https://docs.oracle.com/javase/specs/jvms/se26/html/jvms-2.html#jvms-2.5.1) [Source](../../sources/notes/interview-preparation/java-interview-preparation-summary.md)
 
 ## Allocation, promotion, and retention
 

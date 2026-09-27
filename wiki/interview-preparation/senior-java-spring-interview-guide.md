@@ -9,6 +9,8 @@ This guide organizes the captured senior-interview notes into focused categories
 | Java concurrency | Visibility, atomicity, mutual exclusion, and compound invariants | [Concurrency and the Java Memory Model](../java/concurrency-and-the-java-memory-model.md) |
 | JVM and profiling | Memory areas, GC evidence, OOM classification, JFR, and CPU incidents | [JVM memory, GC, and production profiling](../java/jvm-memory-gc-and-production-profiling.md) |
 | Concurrent caching | Atomic map operations, mutable values, stampede control, and cache lifecycle | [Concurrent in-memory caching](../java/concurrent-in-memory-caching.md) |
+| Strings | Literal pooling, reference identity, content equality, and interning | [String identity and interning](../java/strings-and-interning.md) |
+| Task execution | Executors, asynchronous results, fork/join, and work stealing | [Task execution and fork/join](../java/task-execution-and-fork-join.md) |
 | Spring Framework | Transaction proxies, rollback rules, asynchronous boundaries, lifecycle, and scopes | [Spring transactions, beans, and scopes](../frameworks/spring-transactions-beans-and-scopes.md) |
 | Persistence | N+1, over-fetching, locks, indexes, and connection-pool saturation | [JPA and database performance diagnosis](../data-access/jpa-and-database-performance-diagnosis.md) |
 | Reliability | Deadlines, retries, circuit breakers, bulkheads, shedding, observability, and incident response | [Service resilience and observability](../reliability/service-resilience-and-observability.md) |
@@ -19,7 +21,12 @@ This guide organizes the captured senior-interview notes into focused categories
 - `volatile` provides visibility and ordering, not atomic compound updates.
 - Thread-safe calls do not make a multi-call workflow atomic.
 - Allocation measures object creation; retention measures what remains reachable.
+- Leaving scope does not guarantee an object is collectible if another live reference reaches it; collection timing is nondeterministic.
 - A rising heap before GC is normal; a rising post-GC live set is suspicious.
+- `==` compares string reference identity; `String.equals()` compares content.
+- `ExecutorService` runs tasks while `CompletableFuture` represents and composes asynchronous results; they are often used together.
+- Fork/join tasks choose when to split; work stealing redistributes queued work among workers.
+- Each Java thread has a PC register for its current bytecode instruction; its value is undefined during native-method execution.
 - JFR records behavior over time; a heap dump captures reachable objects at one instant.
 - A concurrent map protects the map structure, not mutable values stored in it.
 - A same-object method call bypasses Spring proxy advice.
@@ -48,10 +55,12 @@ This sequence is a synthesis of the source rather than a verbatim framework supp
 
 ## Coverage limits
 
-The captured material is strongest on runtime diagnosis, Spring internals, persistence performance, resilience, and Kafka workflows. It is not a complete senior-Java syllabus: collections and complexity, generics and type erasure, streams, class loading, modern language features, Spring Security, testing, and reactive programming receive little or no coverage. This coverage assessment is synthesis based on the topics present in the captured source.
+The captured material is strongest on runtime diagnosis, Spring internals, persistence performance, resilience, and Kafka workflows. Supplementary notes add a basic `HashMap`/`ConcurrentHashMap` comparison, string semantics, and task-execution concepts, but this is not a complete senior-Java syllabus: broad collections and complexity coverage, generics and type erasure, streams, class loading, modern language features, Spring Security, testing, and reactive programming receive little or no coverage. This coverage assessment is synthesis based on the topics present in the captured sources.
 
 ## Source status
 
 The source is a synthesized interview note created by George and Codex on 2026-08-29. It includes primary-reference links, but this ingestion did not independently re-verify every claim or version-sensitive configuration example. Treat defaults and framework or broker behavior as needing confirmation against the deployed Java, Spring, Hibernate, and Kafka versions.
 
 Primary source: [Senior Java and Spring Boot Interview Knowledge](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md)
+
+Supplementary source: [Java Interview Preparation Summary](../../sources/notes/interview-preparation/java-interview-preparation-summary.md)
