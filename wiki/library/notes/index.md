@@ -1,5 +1,6 @@
 # Notes
 
+- [Graceful Degradation Practices](graceful-degradation-practices.md) — user-supplied note covering overload controls, retry behavior, timeouts, and observability.
 - [Java Interview Preparation Summary](java-interview-preparation-summary.md) — user-supplied chat summary on Java maps, JVM runtime areas, string interning, executors, and fork/join.
 - [Tokens: the gist](tokens-gist.md) — user-supplied explanatory note about language-model text tokens and why model-specific counts matter.
 - [Latencies: Averages and Percentiles](latencies-and-percentiles.md) — user-supplied study note covering tail latency, percentiles, trend monitoring, and multi-call amplification.
