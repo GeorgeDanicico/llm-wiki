@@ -210,6 +210,54 @@ Expected points:
 
 ## Reliability and Operations
 
+### REL-GD-001 — How do rate limiting, request coalescing, and load shedding protect a service in different ways?
+
+Source: [Service resilience and observability](../wiki/reliability/service-resilience-and-observability.md#graceful-degradation-controls)
+
+Expected points:
+
+- Rate limiting caps request volume for a chosen identity, resource, or service over time; an IP-based example is not a universal policy or a full DDoS defense.
+- Coalescing shares one in-flight operation among equivalent same-key callers.
+- Load shedding rejects work when capacity is unsafe; graceful degradation can also reduce work or return a cheaper useful result.
+- Prioritization decides which work to preserve and depends on business correctness and durability guarantees.
+- 429 is for rate limiting; 503 can report temporary service overload.
+
+### REL-GD-002 — What makes retry jitter useful, and what conditions must a retry policy satisfy?
+
+Source: [Service resilience and observability](../wiki/reliability/service-resilience-and-observability.md#retry-backoff-and-jitter)
+
+Expected points:
+
+- Randomized backoff spreads synchronized retries and reduces retry bursts.
+- Retry only plausibly transient failures; cap attempts and elapsed time and observe the request deadline and retry budget.
+- Do not retry a mutation unless it is safe to repeat, for example through idempotency.
+- Avoid retrying independently at multiple layers; respect Retry-After when provided.
+- Jitter helps distribute load but does not by itself guarantee service recovery.
+
+### REL-GD-003 — How does a circuit breaker allow a dependency to recover without flooding it?
+
+Source: [Service resilience and observability](../wiki/reliability/service-resilience-and-observability.md#circuit-breakers)
+
+Expected points:
+
+- Closed state sends calls while tracking recent outcomes.
+- A configured failure threshold opens the breaker and calls fail fast.
+- After a recovery interval, half-open permits only limited probes.
+- Success closes the breaker; failure reopens it.
+- A timeout interval is configuration, not proof that the dependency is healthy or repaired.
+
+### REL-GD-004 — What should an overload alerting setup measure, and what does OpenTelemetry provide?
+
+Source: [Service resilience and observability](../wiki/reliability/service-resilience-and-observability.md#monitoring-and-alerts)
+
+Expected points:
+
+- Monitor user-facing latency, traffic, and errors as well as resource saturation.
+- Choose actionable thresholds tied to user impact or imminent capacity trouble.
+- OpenTelemetry instruments and exports telemetry signals such as metrics, traces, and logs.
+- A separate monitoring or alerting backend evaluates telemetry and routes notifications.
+- Observability improves detection and diagnosis but cannot guarantee an alert precedes customer reports.
+
 ### REL-RES-001 — How do circuit breakers, bulkheads, and load shedding differ?
 
 Source: [Service resilience and observability](../wiki/reliability/service-resilience-and-observability.md)
