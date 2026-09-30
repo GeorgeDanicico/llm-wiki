@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-09-30 — System-design fundamentals note ingestion
+
+- Preserved the submitted system-design note verbatim as an immutable user-supplied technical source, including its final empty bullet.
+- Added a focused synthesis correcting reliability versus resilience, general versus CAP availability, CAP consistency and partition behavior, stateless-service terminology, partitioning dimensions, replication acknowledgements, and consistency models.
+- Updated source, library, distributed-systems, and root indexes; registered four stable active-recall questions (DIST-SD-001 through DIST-SD-004).
+- Checked definitions against NIST, RFC 9110, the CAP and COPS papers, and official PostgreSQL and MongoDB documentation. Concrete replication guarantees remain configuration- and version-specific; no conflicting wiki claims were found.
+- Validation: exact source-body preservation, local Markdown links and anchors, unique review-question IDs, and Git whitespace checks.
+
 ## 2026-09-27 — Java interview summary ingestion
 
 - Preserved the supplied Java interview summary verbatim beneath capture metadata as a user-supplied chat-summary source.

@@ -9,7 +9,7 @@ This index is the entry point for the compiled knowledge base. Source material i
 - [Frameworks](frameworks/index.md) — Spring transactions, bean lifecycle, dependency resolution, and scopes.
 - [Data access](data-access/index.md) — JPA behavior, optimistic locking, and evidence-driven database performance diagnosis.
 - [Reliability and operations](reliability/index.md) — latency distributions, cache-stampede protection, downstream resilience, observability, health probes, and incident reasoning.
-- [Distributed systems](distributed-systems/index.md) — event time, stream processing, Kafka durability, SAGA coordination, payment idempotency, payment workflows, and fault tolerance.
+- [Distributed systems](distributed-systems/index.md) — system-design fundamentals, event time, stream processing, Kafka durability, SAGA coordination, payment idempotency, payment workflows, and fault tolerance.
 - [Infrastructure](infrastructure/index.md) — DNS, network traffic control, and container image construction.
 - [Interview preparation](interview-preparation/index.md) — cross-topic review guides and high-value distinctions.
 
