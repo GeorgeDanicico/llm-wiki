@@ -4,11 +4,13 @@ This module is the single reader of the question format. The repository
 validator uses it to reject malformed questions, and site builders can use it
 to turn the same Markdown into flashcards.
 
-Expected shape of one question:
+Questions live in one file per topic under ``learning/questions/``. Each file
+starts with a ``# Topic name`` heading (the flashcard deck name), followed by
+any number of questions shaped exactly like this:
 
-    ### JAVA-CONC-001 — Why is `counter++` unsafe when `counter` is volatile?
+    ## JAVA-CONC-001 — Why is `counter++` unsafe when `counter` is volatile?
 
-    Source: [Concurrency and the Java Memory Model](../wiki/java/concurrency-and-the-java-memory-model.md)
+    Source: [Concurrency and the Java Memory Model](../../wiki/java/concurrency-and-the-java-memory-model.md)
 
     Expected points:
 
@@ -23,9 +25,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-QUESTION_FILE = REPO_ROOT / "learning" / "questions.md"
+QUESTION_DIR = REPO_ROOT / "learning" / "questions"
+QUESTION_INDEX = REPO_ROOT / "learning" / "questions.md"
 
-QUESTION_LEVEL = 3
+QUESTION_LEVEL = 2
 ID_PATTERN = r"[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d{3}"
 
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
@@ -40,7 +43,7 @@ class Question:
     text: str
     file: Path
     line: int
-    group: str | None = None
+    topic: str | None = None
     source_label: str | None = None
     source_href: str | None = None
     points: list[str] = field(default_factory=list)
@@ -64,7 +67,7 @@ def parse_file(path: Path) -> list[Question]:
     """Parse every question in ``path``; format problems land in ``errors``."""
     questions: list[Question] = []
     current: Question | None = None
-    group: str | None = None
+    topic: str | None = None
     state = "start"
 
     for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -74,13 +77,13 @@ def parse_file(path: Path) -> list[Question]:
         if heading and len(heading.group(1)) <= QUESTION_LEVEL:
             level, title = len(heading.group(1)), heading.group(2)
             if level == QUESTION_LEVEL:
-                current = _start_question(title, path, number, group)
+                current = _start_question(title, path, number, topic)
                 questions.append(current)
                 state = "after-title"
             else:
                 current = None
-                if level == QUESTION_LEVEL - 1:
-                    group = title
+                if level == 1 and topic is None:
+                    topic = title
             continue
 
         if current is None or not line:
@@ -93,7 +96,7 @@ def parse_file(path: Path) -> list[Question]:
                 current.source_href = source.group("href")
                 state = "after-source"
             else:
-                current.errors.append(f"line {number}: expected 'Source: [Page title](../wiki/...)', found {line!r}")
+                current.errors.append(f"line {number}: expected 'Source: [Page title](../../wiki/...)', found {line!r}")
                 state = "invalid"
         elif state == "after-source":
             if line == "Expected points:":
@@ -122,16 +125,23 @@ def parse_file(path: Path) -> list[Question]:
     return questions
 
 
+def question_files() -> list[Path]:
+    return sorted(QUESTION_DIR.glob("*.md"))
+
+
 def load_questions() -> list[Question]:
-    return parse_file(QUESTION_FILE)
+    return [question for path in question_files() for question in parse_file(path)]
 
 
-def _start_question(title: str, path: Path, number: int, group: str | None) -> Question:
+def _start_question(title: str, path: Path, number: int, topic: str | None) -> Question:
     match = _QUESTION_TITLE_RE.match(title)
     if match:
-        return Question(id=match.group("id"), text=match.group("text"), file=path, line=number, group=group)
-    question = Question(id=None, text=title, file=path, line=number, group=group)
-    question.errors.append(
-        "heading must be '### TOPIC-AREA-NNN — Question text' (stable ID, space, em dash, space, question)"
-    )
+        question = Question(id=match.group("id"), text=match.group("text"), file=path, line=number, topic=topic)
+    else:
+        question = Question(id=None, text=title, file=path, line=number, topic=topic)
+        question.errors.append(
+            "heading must be '## TOPIC-AREA-NNN — Question text' (stable ID, space, em dash, space, question)"
+        )
+    if topic is None:
+        question.errors.append("file must start with a '# Topic name' heading before its first question")
     return question

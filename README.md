@@ -6,7 +6,7 @@ A small, Git-backed personal knowledge base built from immutable Markdown source
 
 - Browse the knowledge map at [`wiki/index.md`](wiki/index.md).
 - Inspect original material in [`sources/`](sources/README.md).
-- Study with [`learning/questions.md`](learning/questions.md).
+- Study with the per-topic review questions listed in [`learning/questions.md`](learning/questions.md).
 - Review repository activity in [`log.md`](log.md).
 
 ## How the repository is organized

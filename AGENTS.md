@@ -30,7 +30,7 @@ Use capture mode when the user asks to save knowledge and supplies a topic plus 
 3. Update an existing topic page when possible; create a focused new page only when the idea does not fit an existing page.
 4. Synthesize only what the source supports. Label personal observations, agent inference, uncertainty, conflicts, and claims that need verification. Do not invent missing details.
 5. Link the source capture from every synthesized page it supports, then update all affected topic, library, and source indexes.
-6. Add durable active-recall questions when the captured knowledge is substantive. Every registered question must have a unique stable identifier, a link to the supporting wiki page, and expected answer points, in the exact format described at the top of `scripts/question_bank.py`.
+6. Add durable active-recall questions when the captured knowledge is substantive. Every registered question must have a unique stable identifier, a link to the supporting wiki page, and expected answer points, in the exact format described at the top of `scripts/question_bank.py`. Add each question to the matching topic file under `learning/questions/`; when a new topic file is needed, list it in `learning/questions.md`.
 7. Append a concise ingestion entry to `log.md`.
 8. Run `python3 scripts/validate.py --base origin/main` and fix every reported problem before publishing the change.
 9. Publish the complete capture as one pull request under the GitHub workflow below, and return the pull-request link with a concise summary of what was stored and any uncertainties.
@@ -53,7 +53,7 @@ Use this mode when the user asks a question, wants to retrieve or recall somethi
 Use this mode when the user asks to be quizzed, requests a random question, or a daily-question request is routed from Telegram.
 
 1. Ask exactly one question per request unless the user explicitly requests more.
-2. Select from `learning/questions.md` when possible. A selected question must link to a substantive existing page under `wiki/`. If no suitable registered question exists, derive one solely from a substantive existing wiki page.
+2. Select from the topic files listed in `learning/questions.md` (under `learning/questions/`) when possible. A selected question must link to a substantive existing page under `wiki/`. If no suitable registered question exists, derive one solely from a substantive existing wiki page.
 3. Randomize across eligible topics rather than repeatedly choosing the first question. Exclude empty placeholders, source-only material that has not been synthesized, and anything requiring knowledge outside this repository.
 4. Ask only the question. Do not reveal expected points or the answer until the user attempts it or explicitly asks for the answer.
 5. Include the question's stable identifier when one exists. Because Telegram requests may be stateless, evaluate an answer only when the current request also includes the question, its stable identifier, or enough text to identify it unambiguously. Otherwise ask the user to include that reference.

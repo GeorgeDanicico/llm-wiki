@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from question_bank import REPO_ROOT, load_questions  # noqa: E402
+from question_bank import QUESTION_INDEX, REPO_ROOT, load_questions, question_files  # noqa: E402
 
 SKIPPED_DIRS = {".git", ".github", "_site", "node_modules"}
 EXTERNAL_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.IGNORECASE)
@@ -207,6 +207,14 @@ def check_questions(errors: list[str]) -> int:
     for question_id, places in by_id.items():
         if len(places) > 1:
             errors.append(f"duplicate ID {question_id} at {', '.join(places)}")
+
+    listed = {
+        (QUESTION_INDEX.parent / target.partition("#")[0]).resolve()
+        for _, target in iter_links(QUESTION_INDEX)
+    }
+    for path in question_files():
+        if path not in listed:
+            errors.append(f"{rel(path)} is not listed in {rel(QUESTION_INDEX)}")
     return len(questions)
 
 

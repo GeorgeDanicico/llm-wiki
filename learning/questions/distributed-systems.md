@@ -1,0 +1,265 @@
+# Distributed systems
+
+Review questions for the [Distributed systems](../../wiki/distributed-systems/index.md) topic.
+
+## DIST-SD-001 — How do reliability, resilience, availability, and CAP availability differ?
+
+Source: [System design fundamentals](../../wiki/distributed-systems/system-design-fundamentals.md#reliability-resilience-and-availability)
+
+Expected points:
+
+- Reliability concerns performing a specified function under stated conditions over time.
+- Resilience or fault tolerance concerns containing failures, degrading safely, or recovering.
+- General availability concerns timely access to service; not every component must be operational.
+- CAP availability is a formal response guarantee under the theorem’s assumptions, not an uptime target.
+
+## DIST-SD-002 — How do horizontal, vertical, range-based, and hash-based partitioning relate?
+
+Source: [System design fundamentals](../../wiki/distributed-systems/system-design-fundamentals.md#data-partitioning-sharding)
+
+Expected points:
+
+- Horizontal partitioning divides rows or records; vertical partitioning divides columns or column groups.
+- Range and hash describe key-placement strategies commonly used for horizontal partitions.
+- Range can preserve range-query locality but may become skewed; hashing can spread keys but loses natural range locality.
+- Queries spanning shards can require scatter-gather work, network transfer, or cross-shard joins.
+
+## DIST-SD-003 — Why do asynchronous, synchronous, and quorum replication not directly mean eventual, strong, and majority agreement?
+
+Source: [System design fundamentals](../../wiki/distributed-systems/system-design-fundamentals.md#replication-and-acknowledgement-strategies)
+
+Expected points:
+
+- Async replication can expose lag and stale reads; convergence requires repair and conflict handling.
+- Sync replication waits for configured acknowledgements, whose durability or visibility meaning is implementation-specific.
+- Quorum is a configured read/write acknowledgement threshold; intersection and other assumptions affect its guarantees.
+- None of these labels alone establishes a universal consistency model; failover, ordering, reads, and conflict handling matter.
+
+## DIST-SD-004 — What guarantees do linearizable, eventual, and causal consistency provide?
+
+Source: [System design fundamentals](../../wiki/distributed-systems/system-design-fundamentals.md#consistency-models)
+
+Expected points:
+
+- Linearizability makes operations appear atomic in an order consistent with real time.
+- Eventual consistency permits temporary divergence and expects convergence after updates stop if communication and repair continue; it gives no fixed time bound.
+- Causal consistency preserves cause-and-effect ordering, such as observing a post before its dependent comment.
+- Causal consistency does not require unrelated concurrent changes to share one global order or every replica to update simultaneously.
+
+## DIST-SAGA-001 — Why is a SAGA compensation not equivalent to a database rollback?
+
+Source: [SAGA pattern for distributed workflows](../../wiki/distributed-systems/saga-pattern.md#core-contract)
+
+Expected points:
+
+- Each participating service has already committed its own local transaction.
+- Compensation is a new business operation that attempts to counter an earlier effect.
+- The original effect may already have been observed and may be costly, delayed, or impossible to reverse perfectly.
+- The workflow therefore provides eventual recovery, not distributed ACID atomicity or isolation.
+
+## DIST-SAGA-002 — How should a SAGA handle a timeout with an unknown remote outcome?
+
+Source: [SAGA pattern for distributed workflows](../../wiki/distributed-systems/saga-pattern.md#durable-state-is-the-recovery-authority)
+
+Expected points:
+
+- A timeout does not prove that the remote transaction failed.
+- Persist the unresolved state rather than reporting confirmed failure.
+- Query remote status or retry with the same operation-specific idempotency key.
+- Do not start a duplicate effect or compensation until the policy has resolved the ambiguity.
+
+## DIST-SAGA-003 — Why does a transactional outbox still require idempotent consumers?
+
+Source: [SAGA pattern for distributed workflows](../../wiki/distributed-systems/saga-pattern.md#idempotency-and-message-delivery)
+
+Expected points:
+
+- The outbox atomically records local state and the intent to publish.
+- A publisher can send the message and crash before marking the outbox record sent.
+- Publication can therefore happen again under at-least-once delivery.
+- An inbox, processed-message record, or equivalent idempotent business effect must absorb duplicates.
+
+## DIST-PAY-001 — Why does Kafka exactly-once processing not make a provider charge exactly once?
+
+Source: [Payment processing with Spring and Kafka](../../wiki/distributed-systems/payment-processing-with-spring-and-kafka.md)
+
+Expected points:
+
+- Kafka's guarantee applies only to supported Kafka-contained boundaries.
+- An external HTTP side effect is outside the Kafka transaction.
+- A timeout can hide a successful provider charge and trigger replay.
+- Stable provider idempotency keys, conditional local state, and reconciliation protect the business effect.
+
+## DIST-STREAM-001 — What is the difference between event time and processing time?
+
+Source: [Event time and processing time](../../wiki/distributed-systems/event-time-and-processing-time.md)
+
+Expected points:
+
+- Event time describes when an event occurred.
+- Processing time describes when the system observed or handled it.
+- Network delays, queues, partitions, and slow processing can make them diverge.
+- Choosing the wrong one can corrupt ordering, windows, and observability.
+
+## DIST-STREAM-002 — Compare tumbling, hopping, sliding, and session windows.
+
+Source: [Stream windows](../../wiki/distributed-systems/stream-windows.md)
+
+Expected points:
+
+- Tumbling windows are fixed and non-overlapping.
+- Hopping windows start periodically and may overlap.
+- Sliding windows represent a continuously moving recent range.
+- Session windows group related activity by key and activity boundaries.
+
+## DIST-STREAM-003 — A dashboard needs a five-minute total recalculated every minute. Which window shape fits, and why?
+
+Source: [Stream windows](../../wiki/distributed-systems/stream-windows.md)
+
+Expected points:
+
+- A hopping window fits a fixed five-minute range emitted on one-minute hops.
+- Adjacent calculations overlap.
+- A sliding implementation might also express a moving range, depending on engine semantics, so the exact system API matters.
+
+## DIST-STREAM-004 — Why might a stream processor keep a local snapshot of reference data?
+
+Source: [Stream joins](../../wiki/distributed-systems/stream-joins.md)
+
+Expected points:
+
+- It avoids a remote database call for every event.
+- It can reduce network latency and dependency on database availability.
+- The trade-off is memory or disk use plus potentially stale data.
+
+## DIST-STREAM-005 — Diagnose why replaying the same events could produce different join results.
+
+Source: [Time-dependent stream joins](../../wiki/distributed-systems/time-dependent-stream-joins.md)
+
+Expected points:
+
+- Events may be observed in a different order.
+- The reference table may have changed between runs.
+- Event-time versus processing-time semantics may be unspecified.
+- Versioned dimensions, stable identifiers, and validity intervals can make historical intent explicit.
+
+## DIST-STREAM-006 — Why is “exactly once” an incomplete fault-tolerance claim?
+
+Source: [Stream-processing fault tolerance](../../wiki/distributed-systems/stream-processing-fault-tolerance.md)
+
+Expected points:
+
+- The claim must identify whether it covers processing, state, output, or end-to-end effects.
+- Retries can duplicate external side effects even if internal state is restored consistently.
+- Progress, restored state, replay, and output commit behavior all affect the guarantee.
+
+## DIST-KAFKA-001 — Why does a Kafka consumer commit offset `103` after completing records `100` through `102`?
+
+Source: [Kafka consumer progress and durability](../../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#current-position-versus-committed-offset)
+
+Expected points:
+
+- A committed offset identifies the next record to consume, not the last completed record.
+- Committing `103` asserts that all relevant effects for earlier offsets are complete.
+- Recovery resumes at `103`.
+- Concurrent processing must not commit past an unfinished lower offset.
+
+## DIST-KAFKA-002 — A Kafka handler finishes its database update and crashes before committing its offset. What happens next?
+
+Source: [Kafka consumer progress and durability](../../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#the-processcommit-failure-boundary)
+
+Expected points:
+
+- The replacement consumer resumes from the older committed offset.
+- The record can be delivered and processed again.
+- This is the normal at-least-once failure window.
+- The database effect needs an idempotency key, uniqueness rule, inbox record, or equivalent deduplication mechanism.
+
+## DIST-KAFKA-003 — Why is `acks=all` insufficient without considering `min.insync.replicas`?
+
+Source: [Kafka consumer progress and durability](../../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#broker-side-durability)
+
+Expected points:
+
+- “All” means all replicas currently in the ISR, not the configured replication factor.
+- A shrunken ISR can contain only the leader.
+- `min.insync.replicas` rejects the write when too few in-sync copies are available.
+- The rejection exchanges write availability for stronger durability.
+
+## DIST-KAFKA-004 — What does Kafka producer idempotence protect, and what does it not protect?
+
+Source: [Kafka consumer progress and durability](../../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#broker-side-durability)
+
+Expected points:
+
+- It prevents producer retries from appending duplicate copies within its supported scope.
+- It works with producer acknowledgement and retry constraints.
+- It does not deduplicate a consumer's database writes or external API calls.
+- External effects still require their own idempotency or atomic inbox/outbox pattern.
+
+## DIST-KAFKA-005 — Why can a healthy Kafka consumer be removed from its group during a long computation?
+
+Source: [Kafka consumer progress and durability](../../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#rebalancing-is-also-a-replay-boundary)
+
+Expected points:
+
+- Liveness heartbeats and application progress are related but distinct.
+- Exceeding `max.poll.interval.ms` can mark the consumer as stalled even if its process is alive.
+- The partition can move to another consumer, creating a replay boundary.
+- Processing time, poll structure, and timeout settings must be designed together and checked against the selected group protocol.
+
+## DIST-PAY-002 — Why should payment deduplication be scoped to an order instead of a user or client-generated key?
+
+Source: [Payment idempotency and double-charge prevention](../../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#use-case-and-invariant)
+
+Expected points:
+
+- A user can legitimately pay multiple different orders concurrently, so user scope is too broad.
+- Different devices can create different client keys for the same order, so a client key alone is too narrow.
+- The order or invoice identifies the business obligation that must be charged once.
+- Duplicate requests should return the existing server-created attempt and its status.
+
+## DIST-PAY-003 — When may a payment workflow create a new generation?
+
+Source: [Payment idempotency and double-charge prevention](../../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#payment-generations)
+
+Expected points:
+
+- Only when the previous generation is confirmed to have failed and a new attempt is intended.
+- A timeout or `unknown` outcome may conceal a successful charge and must be reconciled first.
+- Retries within one generation must reuse its stable provider idempotency key.
+- Reuse with different canonical amount or currency must be rejected.
+
+## DIST-PAY-004 — Two regions can both observe an order as unpaid. Why is later conflict resolution insufficient?
+
+Source: [Payment idempotency and double-charge prevention](../../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#where-serialization-belongs)
+
+Expected points:
+
+- Each region can call the payment provider before replication converges.
+- Database conflict resolution cannot reverse two already-created external charges.
+- Payment initiation needs one serialization point per order.
+- During a partition, delaying or rejecting the request is safer than violating the invariant.
+
+## DIST-PAY-005 — A worker crashes after the provider charges the customer but before saving success. How should recovery work?
+
+Source: [Payment idempotency and double-charge prevention](../../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#safe-asynchronous-processing)
+
+Expected points:
+
+- Queue redelivery may run the worker again.
+- The worker must reuse the same generation-specific provider idempotency key.
+- The provider should return the existing operation rather than create another charge.
+- The worker saves the durable result before committing the queue offset.
+- If the outcome remains ambiguous, mark it `unknown` and reconcile it before allowing a new generation.
+
+## DIST-PAY-006 — Why use a transactional outbox between the payment database and Kafka?
+
+Source: [Payment idempotency and double-charge prevention](../../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#closing-the-database-to-queue-gap)
+
+Expected points:
+
+- The database write and Kafka publish are otherwise separate operations.
+- A crash between them can leave a durable `requested` attempt with no queued work.
+- An outbox or durable change stream connects publication to committed database state.
+- The consumer and worker must still handle duplicate delivery idempotently.
