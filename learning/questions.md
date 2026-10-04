@@ -344,6 +344,50 @@ Expected points:
 
 ## Distributed Systems
 
+### DIST-SD-001 — How do reliability, resilience, availability, and CAP availability differ?
+
+Source: [System design fundamentals](../wiki/distributed-systems/system-design-fundamentals.md#reliability-resilience-and-availability)
+
+Expected points:
+
+- Reliability concerns performing a specified function under stated conditions over time.
+- Resilience or fault tolerance concerns containing failures, degrading safely, or recovering.
+- General availability concerns timely access to service; not every component must be operational.
+- CAP availability is a formal response guarantee under the theorem’s assumptions, not an uptime target.
+
+### DIST-SD-002 — How do horizontal, vertical, range-based, and hash-based partitioning relate?
+
+Source: [System design fundamentals](../wiki/distributed-systems/system-design-fundamentals.md#data-partitioning-sharding)
+
+Expected points:
+
+- Horizontal partitioning divides rows or records; vertical partitioning divides columns or column groups.
+- Range and hash describe key-placement strategies commonly used for horizontal partitions.
+- Range can preserve range-query locality but may become skewed; hashing can spread keys but loses natural range locality.
+- Queries spanning shards can require scatter-gather work, network transfer, or cross-shard joins.
+
+### DIST-SD-003 — Why do asynchronous, synchronous, and quorum replication not directly mean eventual, strong, and majority agreement?
+
+Source: [System design fundamentals](../wiki/distributed-systems/system-design-fundamentals.md#replication-and-acknowledgement-strategies)
+
+Expected points:
+
+- Async replication can expose lag and stale reads; convergence requires repair and conflict handling.
+- Sync replication waits for configured acknowledgements, whose durability or visibility meaning is implementation-specific.
+- Quorum is a configured read/write acknowledgement threshold; intersection and other assumptions affect its guarantees.
+- None of these labels alone establishes a universal consistency model; failover, ordering, reads, and conflict handling matter.
+
+### DIST-SD-004 — What guarantees do linearizable, eventual, and causal consistency provide?
+
+Source: [System design fundamentals](../wiki/distributed-systems/system-design-fundamentals.md#consistency-models)
+
+Expected points:
+
+- Linearizability makes operations appear atomic in an order consistent with real time.
+- Eventual consistency permits temporary divergence and expects convergence after updates stop if communication and repair continue; it gives no fixed time bound.
+- Causal consistency preserves cause-and-effect ordering, such as observing a post before its dependent comment.
+- Causal consistency does not require unrelated concurrent changes to share one global order or every replica to update simultaneously.
+
 ### DIST-SAGA-001 — Why is a SAGA compensation not equivalent to a database rollback?
 
 Source: [SAGA pattern for distributed workflows](../wiki/distributed-systems/saga-pattern.md#core-contract)

@@ -1,5 +1,6 @@
 # Notes
 
+- [System Design Fundamentals](system-design-fundamentals.md) — user-supplied technical note about reliability, CAP, service state, partitioning, replication, and consistency models.
 - [Graceful Degradation Practices](graceful-degradation-practices.md) — user-supplied note covering overload controls, retry behavior, timeouts, and observability.
 - [Java Interview Preparation Summary](java-interview-preparation-summary.md) — user-supplied chat summary on Java maps, JVM runtime areas, string interning, executors, and fork/join.
 - [Tokens: the gist](tokens-gist.md) — user-supplied explanatory note about language-model text tokens and why model-specific counts matter.
