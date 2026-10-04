@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Wiki Flashcards</title>
+  <meta name="description" content="Active-recall flashcards generated from the LLM Wiki review questions.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='5' y='8' width='22' height='16' rx='3' fill='%233b5bdb'/><rect x='9' y='4' width='22' height='16' rx='3' fill='%2391a7ff'/></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <h1>LLM Wiki <span>Flashcards</span></h1>
+      <p class="stats" id="stats" aria-live="polite"></p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="controls" aria-label="Session settings">
+      <div class="control-row">
+        <span class="label" id="topics-label">Topics</span>
+        <div class="chips" id="topics" role="group" aria-labelledby="topics-label"></div>
+      </div>
+      <div class="control-row">
+        <span class="label" id="order-label">Order</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="order-label">
+          <button type="button" role="radio" data-order="shuffle">Shuffle</button>
+          <button type="button" role="radio" data-order="weakest">Weakest first</button>
+        </div>
+        <button type="button" class="link-button" id="restart">Restart session</button>
+      </div>
+    </section>
+
+    <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+    <p class="progress-text" id="progress-text"></p>
+
+    <section id="stage" aria-live="polite">
+      <p class="message">Loading cards…</p>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p class="keys">
+      <kbd>Space</kbd> show answer · <kbd>1</kbd> missed it · <kbd>2</kbd> knew it
+    </p>
+    <p>
+      Generated from <a id="repo-link" href="https://github.com/GeorgeDanicico/llm-wiki">the wiki's review questions</a><span id="generated"></span>.
+      Progress is stored only in this browser.
+      <button type="button" class="link-button" id="reset">Reset progress</button>
+    </p>
+  </footer>
+
+  <template id="card-template">
+    <article class="card" tabindex="-1">
+      <div class="card-meta">
+        <span class="topic"></span>
+        <span class="card-id"></span>
+        <span class="box" title="Times known in a row (resets when missed)"></span>
+      </div>
+      <h2 class="question"></h2>
+      <button type="button" class="reveal">Show answer <kbd>Space</kbd></button>
+      <div class="answer" hidden>
+        <h3>Expected points</h3>
+        <ul class="points"></ul>
+        <a class="source" target="_blank" rel="noopener"></a>
+      </div>
+    </article>
+    <div class="grade" hidden>
+      <button type="button" class="missed">Missed it <kbd>1</kbd></button>
+      <button type="button" class="knew">Knew it <kbd>2</kbd></button>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
