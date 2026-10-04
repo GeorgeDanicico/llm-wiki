@@ -15,6 +15,7 @@ A small, Git-backed personal knowledge base built from immutable Markdown source
 sources/   Immutable notes, articles, books, papers, and attachments
 wiki/      Editable synthesis organized by topic and source type
 learning/  Active-recall questions and review history
+scripts/   Repository validation (Python standard library only)
 log.md     Significant ingestion and maintenance operations
 ```
 
@@ -27,7 +28,7 @@ Source type and knowledge topic are intentionally separate. For example, notes f
 3. Search for related pages before creating a new one.
 4. Update the relevant topic pages and indexes with source citations.
 5. Add durable review questions and append a short entry to `log.md`.
-6. Validate local links before opening a pull request.
+6. Run `python3 scripts/validate.py --base origin/main` before opening a pull request.
 
 The repository deliberately uses Markdown and Git only. It has no database, vector store, or generated search index.
 

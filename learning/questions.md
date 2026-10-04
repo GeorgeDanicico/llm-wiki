@@ -432,7 +432,7 @@ Expected points:
 - A timeout can hide a successful provider charge and trigger replay.
 - Stable provider idempotency keys, conditional local state, and reconciliation protect the business effect.
 
-### What is the difference between event time and processing time?
+### DIST-STREAM-001 — What is the difference between event time and processing time?
 
 Source: [Event time and processing time](../wiki/distributed-systems/event-time-and-processing-time.md)
 
@@ -443,7 +443,7 @@ Expected points:
 - Network delays, queues, partitions, and slow processing can make them diverge.
 - Choosing the wrong one can corrupt ordering, windows, and observability.
 
-### Compare tumbling, hopping, sliding, and session windows.
+### DIST-STREAM-002 — Compare tumbling, hopping, sliding, and session windows.
 
 Source: [Stream windows](../wiki/distributed-systems/stream-windows.md)
 
@@ -454,7 +454,7 @@ Expected points:
 - Sliding windows represent a continuously moving recent range.
 - Session windows group related activity by key and activity boundaries.
 
-### A dashboard needs a five-minute total recalculated every minute. Which window shape fits, and why?
+### DIST-STREAM-003 — A dashboard needs a five-minute total recalculated every minute. Which window shape fits, and why?
 
 Source: [Stream windows](../wiki/distributed-systems/stream-windows.md)
 
@@ -464,7 +464,7 @@ Expected points:
 - Adjacent calculations overlap.
 - A sliding implementation might also express a moving range, depending on engine semantics, so the exact system API matters.
 
-### Why might a stream processor keep a local snapshot of reference data?
+### DIST-STREAM-004 — Why might a stream processor keep a local snapshot of reference data?
 
 Source: [Stream joins](../wiki/distributed-systems/stream-joins.md)
 
@@ -474,7 +474,7 @@ Expected points:
 - It can reduce network latency and dependency on database availability.
 - The trade-off is memory or disk use plus potentially stale data.
 
-### Diagnose why replaying the same events could produce different join results.
+### DIST-STREAM-005 — Diagnose why replaying the same events could produce different join results.
 
 Source: [Time-dependent stream joins](../wiki/distributed-systems/time-dependent-stream-joins.md)
 
@@ -485,7 +485,7 @@ Expected points:
 - Event-time versus processing-time semantics may be unspecified.
 - Versioned dimensions, stable identifiers, and validity intervals can make historical intent explicit.
 
-### Why is “exactly once” an incomplete fault-tolerance claim?
+### DIST-STREAM-006 — Why is “exactly once” an incomplete fault-tolerance claim?
 
 Source: [Stream-processing fault tolerance](../wiki/distributed-systems/stream-processing-fault-tolerance.md)
 
@@ -495,7 +495,7 @@ Expected points:
 - Retries can duplicate external side effects even if internal state is restored consistently.
 - Progress, restored state, replay, and output commit behavior all affect the guarantee.
 
-### Why does a Kafka consumer commit offset `103` after completing records `100` through `102`?
+### DIST-KAFKA-001 — Why does a Kafka consumer commit offset `103` after completing records `100` through `102`?
 
 Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#current-position-versus-committed-offset)
 
@@ -506,7 +506,7 @@ Expected points:
 - Recovery resumes at `103`.
 - Concurrent processing must not commit past an unfinished lower offset.
 
-### A Kafka handler finishes its database update and crashes before committing its offset. What happens next?
+### DIST-KAFKA-002 — A Kafka handler finishes its database update and crashes before committing its offset. What happens next?
 
 Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#the-processcommit-failure-boundary)
 
@@ -517,7 +517,7 @@ Expected points:
 - This is the normal at-least-once failure window.
 - The database effect needs an idempotency key, uniqueness rule, inbox record, or equivalent deduplication mechanism.
 
-### Why is `acks=all` insufficient without considering `min.insync.replicas`?
+### DIST-KAFKA-003 — Why is `acks=all` insufficient without considering `min.insync.replicas`?
 
 Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#broker-side-durability)
 
@@ -528,7 +528,7 @@ Expected points:
 - `min.insync.replicas` rejects the write when too few in-sync copies are available.
 - The rejection exchanges write availability for stronger durability.
 
-### What does Kafka producer idempotence protect, and what does it not protect?
+### DIST-KAFKA-004 — What does Kafka producer idempotence protect, and what does it not protect?
 
 Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#broker-side-durability)
 
@@ -539,7 +539,7 @@ Expected points:
 - It does not deduplicate a consumer's database writes or external API calls.
 - External effects still require their own idempotency or atomic inbox/outbox pattern.
 
-### Why can a healthy Kafka consumer be removed from its group during a long computation?
+### DIST-KAFKA-005 — Why can a healthy Kafka consumer be removed from its group during a long computation?
 
 Source: [Kafka consumer progress and durability](../wiki/distributed-systems/kafka-consumer-progress-and-durability.md#rebalancing-is-also-a-replay-boundary)
 
@@ -550,7 +550,7 @@ Expected points:
 - The partition can move to another consumer, creating a replay boundary.
 - Processing time, poll structure, and timeout settings must be designed together and checked against the selected group protocol.
 
-### Why should payment deduplication be scoped to an order instead of a user or client-generated key?
+### DIST-PAY-002 — Why should payment deduplication be scoped to an order instead of a user or client-generated key?
 
 Source: [Payment idempotency and double-charge prevention](../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#use-case-and-invariant)
 
@@ -561,7 +561,7 @@ Expected points:
 - The order or invoice identifies the business obligation that must be charged once.
 - Duplicate requests should return the existing server-created attempt and its status.
 
-### When may a payment workflow create a new generation?
+### DIST-PAY-003 — When may a payment workflow create a new generation?
 
 Source: [Payment idempotency and double-charge prevention](../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#payment-generations)
 
@@ -572,7 +572,7 @@ Expected points:
 - Retries within one generation must reuse its stable provider idempotency key.
 - Reuse with different canonical amount or currency must be rejected.
 
-### Two regions can both observe an order as unpaid. Why is later conflict resolution insufficient?
+### DIST-PAY-004 — Two regions can both observe an order as unpaid. Why is later conflict resolution insufficient?
 
 Source: [Payment idempotency and double-charge prevention](../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#where-serialization-belongs)
 
@@ -583,7 +583,7 @@ Expected points:
 - Payment initiation needs one serialization point per order.
 - During a partition, delaying or rejecting the request is safer than violating the invariant.
 
-### A worker crashes after the provider charges the customer but before saving success. How should recovery work?
+### DIST-PAY-005 — A worker crashes after the provider charges the customer but before saving success. How should recovery work?
 
 Source: [Payment idempotency and double-charge prevention](../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#safe-asynchronous-processing)
 
@@ -595,7 +595,7 @@ Expected points:
 - The worker saves the durable result before committing the queue offset.
 - If the outcome remains ambiguous, mark it `unknown` and reconcile it before allowing a new generation.
 
-### Why use a transactional outbox between the payment database and Kafka?
+### DIST-PAY-006 — Why use a transactional outbox between the payment database and Kafka?
 
 Source: [Payment idempotency and double-charge prevention](../wiki/distributed-systems/payment-idempotency-and-double-charge-prevention.md#closing-the-database-to-queue-gap)
 
@@ -629,7 +629,7 @@ Expected points:
 - Policing typically drops or marks traffic that exceeds the configured policy.
 - A token bucket can measure whether traffic conforms to an average rate while allowing bounded bursts.
 
-### What roles do recursive, root, TLD, and authoritative DNS servers play?
+### INFRA-DNS-001 — What roles do recursive, root, TLD, and authoritative DNS servers play?
 
 Source: [Domain Name System](../wiki/infrastructure/dns.md)
 
@@ -640,7 +640,7 @@ Expected points:
 - TLD servers direct it to authoritative service for the domain.
 - Authoritative servers supply records for zones they serve.
 
-### Compare `A`, `AAAA`, and `CNAME` records.
+### INFRA-DNS-002 — Compare `A`, `AAAA`, and `CNAME` records.
 
 Source: [Domain Name System](../wiki/infrastructure/dns.md)
 
@@ -650,7 +650,7 @@ Expected points:
 - `AAAA` contains an IPv6 address.
 - `CNAME` aliases a name to another name.
 
-### Why can changing a DNS record fail to affect every client immediately?
+### INFRA-DNS-003 — Why can changing a DNS record fail to affect every client immediately?
 
 Source: [Domain Name System](../wiki/infrastructure/dns.md)
 
@@ -660,7 +660,7 @@ Expected points:
 - TTL controls how long a cached record may be retained.
 - Clients can therefore observe the change at different times.
 
-### Explain the purpose of a multi-stage Dockerfile.
+### INFRA-DOCKER-001 — Explain the purpose of a multi-stage Dockerfile.
 
 Source: [Dockerfile multi-stage builds](../wiki/infrastructure/dockerfile-multi-stage-builds.md)
 
@@ -671,7 +671,7 @@ Expected points:
 - Explicitly selected artifacts are copied into the runtime stage.
 - The final image contains only intentional runtime necessities.
 
-### A binary exists in the build stage but not in the final image. What should you inspect first?
+### INFRA-DOCKER-002 — A binary exists in the build stage but not in the final image. What should you inspect first?
 
 Source: [Dockerfile multi-stage builds](../wiki/infrastructure/dockerfile-multi-stage-builds.md)
 

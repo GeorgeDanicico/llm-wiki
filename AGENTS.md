@@ -30,9 +30,9 @@ Use capture mode when the user asks to save knowledge and supplies a topic plus 
 3. Update an existing topic page when possible; create a focused new page only when the idea does not fit an existing page.
 4. Synthesize only what the source supports. Label personal observations, agent inference, uncertainty, conflicts, and claims that need verification. Do not invent missing details.
 5. Link the source capture from every synthesized page it supports, then update all affected topic, library, and source indexes.
-6. Add durable active-recall questions when the captured knowledge is substantive. New registered questions should have a stable identifier, a link to the supporting wiki page, and expected answer points.
+6. Add durable active-recall questions when the captured knowledge is substantive. Every registered question must have a unique stable identifier, a link to the supporting wiki page, and expected answer points, in the exact format described at the top of `scripts/question_bank.py`.
 7. Append a concise ingestion entry to `log.md`.
-8. Run the available repository validation before publishing the change.
+8. Run `python3 scripts/validate.py --base origin/main` and fix every reported problem before publishing the change.
 9. Publish the complete capture as one pull request under the GitHub workflow below, and return the pull-request link with a concise summary of what was stored and any uncertainties.
 
 A capture is one atomic knowledge change, not necessarily one file. Its source capture, wiki synthesis, indexes, review questions, and log entry belong in the same pull request.
@@ -74,7 +74,7 @@ This repository defines question selection and evaluation behavior. Scheduling a
   5. Create a new branch from the updated `main`.
 - Use one branch and one pull request for each atomic knowledge capture. Use a separate coherent pull request for maintenance that is not part of a capture.
 - Use branch names such as `note/YYYY-MM-DD-short-topic-name` for captures and an appropriately named `docs/`, `fix/`, or `maintenance/` branch for other changes.
-- Before publishing, validate local links and any other available repository checks. Do not publish secrets, credentials, private tokens, or unrelated files.
+- Before publishing, run `python3 scripts/validate.py --base origin/main`. It checks local links and anchors, wiki index coverage, the review-question format and unique identifiers, and that captured sources were not modified. The same check runs in GitHub Actions on every pull request. Do not publish secrets, credentials, private tokens, or unrelated files.
 - Commit the complete coherent change, push its branch, and open a draft pull request. Never force-push a shared branch.
 - A knowledge-capture pull request description must identify:
   - the material captured;
