@@ -36,7 +36,7 @@ The repository deliberately uses Markdown and Git only. It has no database, vect
 
 ## Flashcards
 
-The flashcards are generated, never written by hand. `scripts/build_flashcards.py` reads `learning/questions/` and writes `_site/cards.json` next to the static app from `site/`. The **Deploy flashcards** workflow publishes it to GitHub Pages on every push to `main`. Progress is stored only in each browser's local storage.
+The flashcards are generated, never written by hand. `scripts/build_flashcards.py` reads `learning/questions/` and writes `_site/cards.json` next to the static app from `site/`. The **Deploy flashcards** workflow publishes it to GitHub Pages on every push to `main`. Use Prev/Next (or the arrow keys) to move between cards, or **Browse all** (`/`) to search the session's questions and jump to any of them. Each card has its own link, such as `#DATA-OL-004`. Progress is stored only in each browser's local storage.
 
 To preview locally:
 
