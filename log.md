@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-04 — Per-topic question bank
+
+- Split `learning/questions.md` into one file per topic under `learning/questions/`, matching the wiki topic directories; `learning/questions.md` is now the index of those files.
+- All 61 questions kept their identifiers, wording, supporting-page links, and expected points; only heading levels and relative link depth changed. The former "Spring Framework" group is now named "Frameworks" to match the wiki topic.
+- The validator now also requires every topic file to start with a topic heading and to be listed in the index.
+- Validation: 90 Markdown files, 457 local links, and 61 review questions passed.
+
 ## 2026-10-04 — Repository validation
 
 - Added `scripts/validate.py` with a shared question-bank parser: it checks local links and heading anchors, wiki index coverage, review-question format, unique question identifiers, supporting-page links, and (with `--base`) that captured sources are unchanged.
