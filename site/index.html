@@ -33,7 +33,14 @@
     </section>
 
     <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
-    <p class="progress-text" id="progress-text"></p>
+    <nav class="card-nav" aria-label="Card navigation">
+      <button type="button" class="nav-button" id="prev" aria-label="Previous card"><span aria-hidden="true">‹</span> Prev</button>
+      <button type="button" class="position" id="open-list" aria-haspopup="dialog">
+        <span id="position-text"></span>
+        <span class="browse">Browse all <kbd>/</kbd></span>
+      </button>
+      <button type="button" class="nav-button" id="next" aria-label="Next card">Next <span aria-hidden="true">›</span></button>
+    </nav>
 
     <section id="stage" aria-live="polite">
       <p class="message">Loading cards…</p>
@@ -42,7 +49,8 @@
 
   <footer class="wrap footer">
     <p class="keys">
-      <kbd>Space</kbd> show answer · <kbd>1</kbd> missed it · <kbd>2</kbd> knew it
+      <kbd>Space</kbd> show answer · <kbd>1</kbd> missed it · <kbd>2</kbd> knew it ·
+      <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>/</kbd> browse all
     </p>
     <p>
       Generated from <a id="repo-link" href="https://github.com/GeorgeDanicico/llm-wiki">the wiki's review questions</a><span id="generated"></span>.
@@ -51,11 +59,22 @@
     </p>
   </footer>
 
+  <dialog id="browser" aria-labelledby="browser-title">
+    <div class="dialog-head">
+      <h2 id="browser-title">Questions in this session</h2>
+      <button type="button" class="close" id="close-list" aria-label="Close">✕</button>
+    </div>
+    <input type="search" id="search" placeholder="Filter by question, topic, or ID" aria-label="Filter questions" autocomplete="off">
+    <p class="list-summary" id="list-summary"></p>
+    <ol class="card-list" id="card-list"></ol>
+  </dialog>
+
   <template id="card-template">
     <article class="card" tabindex="-1">
       <div class="card-meta">
         <span class="topic"></span>
         <span class="card-id"></span>
+        <span class="verdict" hidden></span>
         <span class="box" title="Times known in a row (resets when missed)"></span>
       </div>
       <h2 class="question"></h2>

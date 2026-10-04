@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-04 — Flashcard navigation
+
+- Added Prev/Next navigation (buttons and arrow keys) and a searchable **Browse all** list for jumping to any card in the session, with knew/missed marks per card.
+- Revisited cards show their verdict for the session, and regrading replaces it instead of counting twice. Each card now has a shareable link (`#CARD-ID`).
+- Grading keys are now `1`/`2` (or `j`/`k`); the arrow keys navigate. No knowledge content changed.
+- Validation: repository checks and flashcard build passed; tested in a browser (navigation, regrading, browse filter and jump, deep links, desktop dark and mobile light layouts).
+
 ## 2026-10-04 — GitHub Pages flashcards
 
 - Added a static flashcard app (`site/`) and `scripts/build_flashcards.py`, which turns every registered review question into a card in `cards.json` using the shared question parser.
