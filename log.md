@@ -8,6 +8,14 @@
 - Checked definitions against NIST, RFC 9110, the CAP and COPS papers, and official PostgreSQL and MongoDB documentation. Concrete replication guarantees remain configuration- and version-specific; no conflicting wiki claims were found.
 - Validation: exact source-body preservation, local Markdown links and anchors, unique review-question IDs, and Git whitespace checks.
 
+## 2026-09-29 — Graceful degradation practices ingestion
+
+- Preserved the seven supplied resilience claims verbatim as an immutable user-supplied technical note.
+- Extended the existing service-resilience page with corrections and detail on rate limits, request coalescing, load shedding, retry jitter, circuit breakers, deadlines, and alerts; linked the related cache-stampede and payment material.
+- Updated the source, library, reliability-topic, and root indexes and registered four active-recall questions (REL-GD-001 through REL-GD-004).
+- Marked the numeric limits as examples and checked the technical corrections against Google SRE, RFC 6585, AWS, Microsoft, and OpenTelemetry primary references; no conflicting wiki claims were found.
+- Validation: 425 local Markdown links and anchors, 36 unique review-question IDs, exact captured source wording, and Git whitespace checks passed.
+
 ## 2026-09-27 — Java interview summary ingestion
 
 - Preserved the supplied Java interview summary verbatim beneath capture metadata as a user-supplied chat-summary source.
