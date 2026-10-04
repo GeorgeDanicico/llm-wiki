@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-04 — GitHub Pages flashcards
+
+- Added a static flashcard app (`site/`) and `scripts/build_flashcards.py`, which turns every registered review question into a card in `cards.json` using the shared question parser.
+- Added a **Deploy flashcards** workflow that validates the wiki, builds the cards, and publishes them to GitHub Pages on every push to `main`.
+- Cards show the question, then the expected points and a link to the supporting wiki page. Topic filters, shuffle or weakest-first order, and per-card progress (stored in the browser) are available. No knowledge content changed.
+- Validation: 61 cards in 7 topics built; tested the app manually in a browser (reveal, grading, topic filter, session summary, saved progress, light/dark and mobile layouts).
+
 ## 2026-10-04 — Per-topic question bank
 
 - Split `learning/questions.md` into one file per topic under `learning/questions/`, matching the wiki topic directories; `learning/questions.md` is now the index of those files.
