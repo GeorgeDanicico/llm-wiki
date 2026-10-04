@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-04 — Repository validation
+
+- Added `scripts/validate.py` with a shared question-bank parser: it checks local links and heading anchors, wiki index coverage, review-question format, unique question identifiers, supporting-page links, and (with `--base`) that captured sources are unchanged.
+- Added a GitHub Actions workflow that runs the validator on every pull request and on pushes to `main`.
+- Assigned stable identifiers to 21 previously unregistered questions (DIST-STREAM-001–006, DIST-KAFKA-001–005, DIST-PAY-002–006, INFRA-DNS-001–003, INFRA-DOCKER-001–002); question wording and expected points are unchanged.
+- Validation: 83 Markdown files, 441 local links, and 61 review questions passed.
+
 ## 2026-09-30 — System-design fundamentals note ingestion
 
 - Preserved the submitted system-design note verbatim as an immutable user-supplied technical source, including its final empty bullet.
