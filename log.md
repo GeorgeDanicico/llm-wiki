@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-05 — Cache-aside learning session ingestion
+
+- Preserved the learning-session summary for topic 101 (cache-aside) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Cache-aside](wiki/reliability/cache-aside.md) page (read path, write-time TTL, freshness versus database load, common mistakes, cache-failure fallback) and a library-note entry, linked to the existing cache-stampede page.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered seven review questions (REL-CA-001 through REL-CA-007), which feed the flashcards.
+- Marked real-world uses and external references as unverified; no conflicting wiki claims were identified.
+
 ## 2026-10-04 — Flashcard navigation
 
 - Added Prev/Next navigation (buttons and arrow keys) and a searchable **Browse all** list for jumping to any card in the session, with knew/missed marks per card.

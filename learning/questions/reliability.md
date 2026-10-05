@@ -104,6 +104,77 @@ Expected points:
 - Monitor cache hit and miss behavior together with downstream QPS, pool pressure, latency, and errors.
 - A rise in cache misses, database QPS, and database latency together is a strong stampede signal.
 
+## REL-CA-001 — In cache-aside, who loads data into the cache on a miss, and why does that matter?
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#pattern-and-responsibility)
+
+Expected points:
+
+- The application loads it: it reads the database, then writes the result to the cache.
+- The cache is passive and never talks to the database.
+- The application sending the `SET` is what distinguishes cache-aside from read-through caching.
+
+## REL-CA-002 — What are the four steps of a cache-aside read?
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#read-path)
+
+Expected points:
+
+- `GET` the key from the cache.
+- On a hit, return the value without touching the database.
+- On a miss, query the database.
+- `SET` the result in the cache with a TTL, then return it.
+- A miss means the key was never stored (cold cache or evicted) or has expired.
+
+## REL-CA-003 — Does a plain Redis `GET` hit reset a cached key's TTL, and what does that imply about staleness?
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#ttl-semantics)
+
+Expected points:
+
+- No; the TTL countdown starts when the key is written.
+- The TTL is therefore an upper bound on how stale a cached value can be.
+- In the worked trace with a five-minute TTL, a key written at 10:00:00 misses again at 10:06:00 even though it was hit at 10:00:10.
+
+## REL-CA-004 — What is the main trade-off when choosing a cache-aside TTL, and what data should not be served from the cache?
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#freshness-versus-database-load)
+
+Expected points:
+
+- Freshness versus database load: a short TTL gives fresher data but more misses; a long TTL gives fewer reads but staler data.
+- The TTL is how stale you can afford to be.
+- Cache rarely changing data, such as product descriptions, with a long TTL.
+- Do not serve decision-critical data, such as stock at checkout, from the cache; at most cache a display value with a very short TTL.
+
+## REL-CA-005 — A user renamed their profile but the old name was served for about an hour. Why, and what are the fixes?
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#freshness-versus-database-load)
+
+Expected points:
+
+- The value was cached before the update and nothing evicted it, so it was served until the TTL expired.
+- Evicting the key on update fixes it but has its own race conditions.
+- A shorter TTL reduces the stale window but increases database load.
+
+## REL-CA-006 — Name two common cache-aside mistakes and their consequences.
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#common-mistakes)
+
+Expected points:
+
+- No TTL: keys live until evicted, so changed data can stay stale indefinitely.
+- Not caching "not found": lookups for missing IDs miss the cache and hit the database every time.
+
+## REL-CA-007 — What happens to cache-aside reads when the cache server goes down?
+
+Source: [Cache-aside](../../wiki/reliability/cache-aside.md#cache-failure)
+
+Expected points:
+
+- Reads fall through to the database, but only if the code treats cache errors as misses (catching exceptions, short timeouts).
+- The database then takes the full load, the same risk as a cache stampede.
+
 ## REL-LAT-001 — Why can an average latency hide a poor user experience?
 
 Source: [Latency averages and percentiles](../../wiki/reliability/latency-averages-and-percentiles.md#why-an-average-is-insufficient)
