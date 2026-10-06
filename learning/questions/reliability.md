@@ -175,6 +175,56 @@ Expected points:
 - Reads fall through to the database, but only if the code treats cache errors as misses (catching exceptions, short timeouts).
 - The database then takes the full load, the same risk as a cache stampede.
 
+## REL-RT-001 — In read-through caching, who calls the database on a miss, and how does the cache know how to load?
+
+Source: [Read-through caching](../../wiki/reliability/read-through-caching.md#pattern-and-responsibility)
+
+Expected points:
+
+- The cache itself calls the database, not the application call site.
+- It invokes a loader, a `key → value` function registered when the cache was built.
+- The caller only calls `get(key)` and never sees a miss.
+
+## REL-RT-002 — What is the core difference between cache-aside and read-through, and what does not change?
+
+Source: [Read-through caching](../../wiki/reliability/read-through-caching.md#what-stays-the-same-as-cache-aside)
+
+Expected points:
+
+- The difference is where the loading logic lives: repeated at every call site in cache-aside, written once in the cache's loader in read-through.
+- The loading code is moved, not removed; the service still calls `cache.get(key)`.
+- Cold misses still hit the database, staleness is still bounded by the TTL, and writes still need explicit invalidation.
+
+## REL-RT-003 — A read-through user-profile cache shows an old display name for up to its TTL after an update. Why, and what is the fix?
+
+Source: [Read-through caching](../../wiki/reliability/read-through-caching.md#writes-and-invalidation)
+
+Expected points:
+
+- Read-through covers only the read path; the update wrote the database without touching the cache.
+- The cached value stays until the TTL expires; eviction policies remove entries only eventually.
+- Call `cache.invalidate(id)` in the write path after saving, so the next `get` reloads the fresh value.
+
+## REL-RT-004 — Why can't a plain Redis server act as a read-through cache by itself?
+
+Source: [Read-through caching](../../wiki/reliability/read-through-caching.md#where-read-through-needs-a-loader-capable-layer)
+
+Expected points:
+
+- Redis has no loader hook: no query code and no database credentials, so a miss just returns nothing.
+- Read-through on Redis needs an application-side layer that owns the loader, such as Redisson `MapLoader`.
+- The pattern is about who owns the loading logic from the business code's point of view, not which process runs the query.
+
+## REL-RT-005 — Name the main limitation of read-through caching and one access pattern that fits it poorly.
+
+Source: [Read-through caching](../../wiki/reliability/read-through-caching.md#trade-off-centralisation-costs-flexibility)
+
+Expected points:
+
+- One loader per cache means one way to load a key: centralisation costs flexibility.
+- Poor fits: callers that must bypass the cache for fresh data, multi-criteria lookups such as search filters or pagination.
+- Database failures and latency surface from a `cache.get()` that looks cheap at the call site.
+
 ## REL-LAT-001 — Why can an average latency hide a poor user experience?
 
 Source: [Latency averages and percentiles](../../wiki/reliability/latency-averages-and-percentiles.md#why-an-average-is-insufficient)

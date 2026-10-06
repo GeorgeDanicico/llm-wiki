@@ -20,6 +20,7 @@ Data-access notes are cataloged in the [data-access source index](notes/data-acc
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/reliability/read-through-caching-learning-session.md`](notes/reliability/read-through-caching-learning-session.md) | User-supplied learning-session summary | 2026-10-06 | [Library entry](../wiki/library/notes/read-through-caching.md), [Read-through caching](../wiki/reliability/read-through-caching.md) |
 | [`notes/reliability/cache-aside-learning-session.md`](notes/reliability/cache-aside-learning-session.md) | User-supplied learning-session summary | 2026-10-05 | [Library entry](../wiki/library/notes/cache-aside.md), [Cache-aside](../wiki/reliability/cache-aside.md) |
 | [`notes/distributed-systems/system-design-fundamentals.md`](notes/distributed-systems/system-design-fundamentals.md) | User-supplied technical note | 2026-09-30 | [Library entry](../wiki/library/notes/system-design-fundamentals.md), [System design fundamentals](../wiki/distributed-systems/system-design-fundamentals.md) |
 | [`notes/interview-preparation/java-interview-preparation-summary.md`](notes/interview-preparation/java-interview-preparation-summary.md) | User-supplied chat summary | 2026-09-27 | [Library entry](../wiki/library/notes/java-interview-preparation-summary.md), [Java and JVM](../wiki/java/index.md), [Interview guide](../wiki/interview-preparation/senior-java-spring-interview-guide.md) |
