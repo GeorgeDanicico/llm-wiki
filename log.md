@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-06 — Read-through caching learning session ingestion
+
+- Preserved the learning-session summary for topic 102 (read-through caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Read-through caching](wiki/reliability/read-through-caching.md) page (loader-owned misses, comparison with cache-aside, write-path invalidation, loader-capable layers, centralisation-versus-flexibility trade-off) and a library-note entry; replaced the cache-aside page's placeholder about read-through with a link to it.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered five review questions (REL-RT-001 through REL-RT-005), which feed the flashcards.
+- Caffeine, Hazelcast, and Redisson references were checked during the session; the JCache claim is marked unverified. No conflicting wiki claims were identified.
+
 ## 2026-10-05 — Cache-aside learning session ingestion
 
 - Preserved the learning-session summary for topic 101 (cache-aside) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.

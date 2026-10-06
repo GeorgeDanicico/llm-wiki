@@ -4,7 +4,7 @@
 
 Cache-aside (also called lazy loading) places a fast key-value store, such as Redis, next to the database. The application does all of the work: it reads the cache, falls back to the database, and fills the cache. The cache is passive and never talks to the database itself. [Source](../../sources/notes/reliability/cache-aside-learning-session.md#key-ideas)
 
-Who loads the cache on a miss is what distinguishes cache-aside from read-through caching: in cache-aside the application sends the `SET`. [Source](../../sources/notes/reliability/cache-aside-learning-session.md#your-check-in-answers) The source names read-through as the next topic to compare but does not yet describe it, so this page does not characterize read-through further.
+Who loads the cache on a miss is what distinguishes cache-aside from read-through caching: in cache-aside the application sends the `SET`. [Source](../../sources/notes/reliability/cache-aside-learning-session.md#your-check-in-answers) In read-through caching, the cache calls a registered loader on a miss instead; see [Read-through caching](read-through-caching.md) for the comparison. [Source](../../sources/notes/reliability/read-through-caching-learning-session.md#key-ideas)
 
 ## Read path
 
@@ -76,6 +76,6 @@ The source reports these uses; they were not independently verified during captu
 
 ## Source status and related knowledge
 
-This page synthesizes one learning-session summary without independent external verification. The five-minute TTL and the trace are illustrative, not recommended defaults. No conflicting wiki claims were found. Related pages: [Cache stampedes](cache-stampedes.md) (what happens when many callers miss together) and [Concurrent in-memory caching](../java/concurrent-in-memory-caching.md) (local coalescing of loads).
+This page synthesizes one learning-session summary without independent external verification. The five-minute TTL and the trace are illustrative, not recommended defaults. No conflicting wiki claims were found. Related pages: [Read-through caching](read-through-caching.md) (the same read path with loading moved into the cache), [Cache stampedes](cache-stampedes.md) (what happens when many callers miss together) and [Concurrent in-memory caching](../java/concurrent-in-memory-caching.md) (local coalescing of loads).
 
-Sources: [captured cache-aside learning session](../../sources/notes/reliability/cache-aside-learning-session.md), library entry [101. Cache-aside — learning session](../library/notes/cache-aside.md)
+Sources: [captured cache-aside learning session](../../sources/notes/reliability/cache-aside-learning-session.md), [captured read-through caching learning session](../../sources/notes/reliability/read-through-caching-learning-session.md), library entry [101. Cache-aside — learning session](../library/notes/cache-aside.md)
