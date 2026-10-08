@@ -8,7 +8,7 @@ This index is the entry point for the compiled knowledge base. Source material i
 - [Java and JVM](java/index.md) — concurrency, memory behavior, production profiling, in-process caching, string semantics, and task execution.
 - [Frameworks](frameworks/index.md) — Spring transactions, bean lifecycle, dependency resolution, and scopes.
 - [Data access](data-access/index.md) — JPA behavior, optimistic locking, and evidence-driven database performance diagnosis.
-- [Reliability and operations](reliability/index.md) — latency distributions, cache-aside and read-through reads, cache-stampede protection, graceful degradation, downstream resilience, observability, health probes, and incident reasoning.
+- [Reliability and operations](reliability/index.md) — latency distributions, cache-aside and read-through reads, cache-stampede protection, HTTP client timeouts, graceful degradation, downstream resilience, observability, health probes, and incident reasoning.
 - [Distributed systems](distributed-systems/index.md) — system-design fundamentals, event time, stream processing, Kafka durability, SAGA coordination, payment idempotency, payment workflows, and fault tolerance.
 - [Infrastructure](infrastructure/index.md) — DNS, network traffic control, and container image construction.
 - [Interview preparation](interview-preparation/index.md) — cross-topic review guides and high-value distinctions.

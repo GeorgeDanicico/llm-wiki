@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-08 — Connection versus request timeouts learning session ingestion
+
+- Preserved the learning-session summary for topic 121 (connection versus request timeouts) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Connection versus request timeouts](wiki/reliability/connection-versus-request-timeouts.md) page (the four waits and their settings, read timeouts versus total caps, JDK `HttpClient` example, pool-acquisition queueing, too-tight-versus-too-loose trade-off) and a library-note entry; linked it from the timeouts section of the service-resilience page.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered five review questions (REL-TO-001 through REL-TO-005), which feed the flashcards.
+- The JDK `HttpRequest.Builder.timeout` documentation was checked during the session; Linux SYN-retry timings and Apache HttpClient setting names are marked unverified. No conflicting wiki claims were identified.
+
 ## 2026-10-06 — Read-through caching learning session ingestion
 
 - Preserved the learning-session summary for topic 102 (read-through caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.

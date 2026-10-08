@@ -20,6 +20,7 @@ Data-access notes are cataloged in the [data-access source index](notes/data-acc
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/reliability/connection-vs-request-timeouts-learning-session.md`](notes/reliability/connection-vs-request-timeouts-learning-session.md) | User-supplied learning-session summary | 2026-10-08 | [Library entry](../wiki/library/notes/connection-vs-request-timeouts.md), [Connection versus request timeouts](../wiki/reliability/connection-versus-request-timeouts.md) |
 | [`notes/reliability/read-through-caching-learning-session.md`](notes/reliability/read-through-caching-learning-session.md) | User-supplied learning-session summary | 2026-10-06 | [Library entry](../wiki/library/notes/read-through-caching.md), [Read-through caching](../wiki/reliability/read-through-caching.md) |
 | [`notes/reliability/cache-aside-learning-session.md`](notes/reliability/cache-aside-learning-session.md) | User-supplied learning-session summary | 2026-10-05 | [Library entry](../wiki/library/notes/cache-aside.md), [Cache-aside](../wiki/reliability/cache-aside.md) |
 | [`notes/distributed-systems/system-design-fundamentals.md`](notes/distributed-systems/system-design-fundamentals.md) | User-supplied technical note | 2026-09-30 | [Library entry](../wiki/library/notes/system-design-fundamentals.md), [System design fundamentals](../wiki/distributed-systems/system-design-fundamentals.md) |
