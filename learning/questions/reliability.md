@@ -225,6 +225,56 @@ Expected points:
 - Poor fits: callers that must bypass the cache for fresh data, multi-criteria lookups such as search filters or pagination.
 - Database failures and latency surface from a `cache.get()` that looks cheap at the call site.
 
+## REL-TO-001 — Name the four separate waits in an outbound HTTP call and the setting that bounds each.
+
+Source: [Connection versus request timeouts](../../wiki/reliability/connection-versus-request-timeouts.md#separate-waits-separate-settings)
+
+Expected points:
+
+- Pool acquisition: waiting for the caller's own pool, bounded by e.g. Apache HttpClient `connectionRequestTimeout`.
+- Connect: establishing the connection (TCP, and TLS on some clients), bounded by `connectTimeout`.
+- Read/socket: the silence between reads, bounded by `readTimeout` or `SO_TIMEOUT`.
+- Request/overall: the whole response from the start, bounded by e.g. JDK `HttpRequest.timeout(...)`; a wait with no setting can last forever.
+
+## REL-TO-002 — A dependency accepts connections and then goes silent. Why doesn't a 2 s connect timeout help?
+
+Source: [Connection versus request timeouts](../../wiki/reliability/connection-versus-request-timeouts.md#separate-waits-separate-settings)
+
+Expected points:
+
+- The connection was established, so the connect timeout has already done its job and never fires again for that call.
+- The stuck wait is reading the response, which needs a read or overall timeout.
+
+## REL-TO-003 — Why can a 5 s read timeout fail to stop a call that lasts ten minutes?
+
+Source: [Connection versus request timeouts](../../wiki/reliability/connection-versus-request-timeouts.md#read-timeouts-are-not-total-caps)
+
+Expected points:
+
+- A read timeout bounds the gap between bytes, and each arriving byte resets the clock.
+- A server that trickles data (for example one byte every 4 s) never trips it.
+- Only an overall/request timeout caps the total elapsed time.
+
+## REL-TO-004 — A pool of 20 connections, a slow dependency (p99 1.8 s, read timeout 2 s), all 200 threads busy, almost no timeout errors. What is happening and what do you change first?
+
+Source: [Connection versus request timeouts](../../wiki/reliability/connection-versus-request-timeouts.md#pool-acquisition-the-forgotten-wait)
+
+Expected points:
+
+- Threads are queued on acquiring a connection from the caller's own pool and never touch the network.
+- The slow calls stay under the read timeout, and connect/read timeouts have not started for queued requests, so nothing fires.
+- Set a pool-acquisition timeout such as `connectionRequestTimeout` to about 1 s or less so overload fails visibly.
+
+## REL-TO-005 — What goes wrong with a connect timeout that is too high, and with one that is too low?
+
+Source: [Connection versus request timeouts](../../wiki/reliability/connection-versus-request-timeouts.md#trade-off-too-tight-versus-too-loose)
+
+Expected points:
+
+- Too high (e.g. 30 s in one region): every call to a dead host holds a thread for the full timeout, risking thread-pool exhaustion.
+- Too low (e.g. 100 ms or less): ordinary SYN loss causes needless failures, which can trigger retry storms.
+- A few hundred milliseconds to about one second is a common same-region range.
+
 ## REL-LAT-001 — Why can an average latency hide a poor user experience?
 
 Source: [Latency averages and percentiles](../../wiki/reliability/latency-averages-and-percentiles.md#why-an-average-is-insufficient)

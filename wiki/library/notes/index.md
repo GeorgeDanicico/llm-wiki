@@ -7,6 +7,7 @@
 - [Latencies: Averages and Percentiles](latencies-and-percentiles.md) — user-supplied study note covering tail latency, percentiles, trend monitoring, and multi-call amplification.
 - [101. Cache-aside — learning session](cache-aside.md) — user-supplied learning-session summary covering the cache-aside read path, TTL semantics, freshness versus load, and common mistakes.
 - [102. Read-through caching — learning session](read-through-caching.md) — user-supplied learning-session summary covering loader-owned misses, comparison with cache-aside, write-path invalidation, and the flexibility trade-off.
+- [121. Connection versus request timeouts — learning session](connection-vs-request-timeouts.md) — user-supplied learning-session summary covering pool-acquisition, connect, read, and overall timeouts and which wait each bounds.
 - [Cache Stampedes — Study Notes](cache-stampedes.md) — user-supplied study note covering cache-miss storms, coalescing, expiry jitter, stale serving, and overload protection.
 - [Optimistic Locking](optimistic-locking.md) — user-supplied learning note covering version checks, safe retries, JPA, and stale-form reconciliation.
 
