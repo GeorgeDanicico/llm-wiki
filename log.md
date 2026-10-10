@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-10 — Write-through caching learning session ingestion
+
+- Preserved the learning-session summary for topic 103 (write-through caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Write-through caching](wiki/reliability/write-through-caching.md) page (synchronous database-then-cache write path, write-latency cost, consistency assumptions, concurrent-writer and bypassing-writer staleness, fit and trade-offs) and a library-note entry.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered six review questions (REL-WT-001 through REL-WT-006), which feed the flashcards.
+- The mitigation list and fit guidance come from the session and were not checked against external documentation; the AWS ElastiCache and CPU-cache remarks and the reading list are from memory and not synthesized. No conflicting wiki claims were identified.
+- Validation: `scripts/validate.py` could not be run on the authoring machine (no Python installation); links, anchors, and question format were checked by hand and the GitHub Actions run is the authoritative check.
 ## 2026-10-08 — Connection versus request timeouts learning session ingestion
 
 - Preserved the learning-session summary for topic 121 (connection versus request timeouts) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.

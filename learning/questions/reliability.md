@@ -304,3 +304,63 @@ Expected points:
 - Multiple independent calls give each page load multiple chances to include a slow call.
 - With ten independent calls at five-percent slow probability, at least one is slow about 40% of the time.
 - Shared dependencies can invalidate the independence assumption, so the calculation is illustrative.
+## REL-WT-001 — In write-through caching, what is the order of a write, and what does a successful write guarantee?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#pattern-and-write-path)
+
+Expected points:
+
+- The cache layer writes to the database synchronously, then stores the value in the cache, then acknowledges the client.
+- After a successful write the cache and the database hold the same value, so reads are fresh without invalidation.
+- If the database write fails, the cache must not keep the new value.
+
+## REL-WT-002 — What is the main cost of write-through caching, and when is it a good fit?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#trade-off-and-fit)
+
+Expected points:
+
+- Write latency is cache time plus database time, and written-but-never-read data still uses cache space.
+- It suits read-heavy data that is read soon after it is written (write once, read many).
+- It fits poorly where data is write-heavy and rarely read.
+
+## REL-WT-003 — Which assumptions must hold for a write-through cache to match the database?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#consistency-assumptions)
+
+Expected points:
+
+- All writers go through the cache layer; a direct database write leaves the cache stale.
+- Writes to the same key are ordered.
+- The two stores are not atomic, so a failed cache update after a committed database write leaves the old value cached.
+
+## REL-WT-004 — Two threads update the same product concurrently under write-through. How can the database and cache end up with different prices?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#worked-example-concurrent-writers)
+
+Expected points:
+
+- The database and cache steps of the two writes can interleave: for example A writes the database, B writes the database and the cache, then A writes the cache.
+- The database ends with B's value while the cache ends with A's older value.
+- Readers see the stale value until it expires or is evicted.
+- Mitigations: serialize writes per key, use versions, keep a TTL as a safety net, or delete the key instead of putting a value.
+
+## REL-WT-005 — A nightly job updates prices with SQL directly against a write-through-cached database, and customers see old prices. What happened and what are better fixes than flushing the whole cache?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#trade-off-and-fit)
+
+Expected points:
+
+- The job bypassed the cache layer, breaking the assumption that all writers go through it.
+- Flushing everything works but removes correct entries and causes a burst of database misses.
+- Better: write through the cache layer, or evict only the changed keys; keep a TTL as a safety net.
+
+## REL-WT-006 — The database write succeeds but the cache update then fails under write-through. What is the state and what should the cache layer do?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#worked-example-concurrent-writers)
+
+Expected points:
+
+- The database has the new value and the cache still has the old one.
+- Evict or invalidate the key and/or return an error so the caller retries, so readers do not keep the stale entry.
+- Rolling back the already-committed database write is not the normal fix, and write-through gives no atomicity across the two stores.
