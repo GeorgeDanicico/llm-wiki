@@ -1,5 +1,14 @@
 # Wiki Log
 
+## 2026-10-21 — Study site: progress server, sync, and installable app
+
+- Added `server/progress_server.py` (Python standard library): it serves the built site and stores reviews, learned pages, and settings in SQLite with a global change counter. `POST /api/sync` pushes and pulls in one call with the merge rule (newer instant wins, ties keep the existing row); `GET /api/export` returns every row; `GET /api/health` needs no token. Device tokens are checked against SHA-256 hashes, failed attempts are rate-limited per IP, every response carries a strict Content-Security-Policy, and a daily `VACUUM INTO` snapshot is kept for 30 days.
+- Added client sync (`site/js/lib/sync.js`), **Settings → Sync across devices**, and a header sync status. Without a token the site behaves as before, so the GitHub Pages copy stays local-only.
+- Made the site an installable web app: a web manifest, PNG icons, and a service worker (`site/sw.js`) whose version `scripts/build_flashcards.py` fills in from the built files; the app works offline and offers **Update available · Reload** after a deploy. The inline favicon became `site/icons/favicon.svg`.
+- Added a multi-stage `Dockerfile` (base image pinned by digest; the site is built inside the image), `docker-compose.yml` (service `study`, `127.0.0.1:3002:8000`, read-only, uid 10001), and `.dockerignore`, for deployment by vps-apps.
+- Added Python tests for the server and the service worker build, and Node tests for sync. Documented the study site, its deployment, and tokens in `README.md`; `AGENTS.md` now lists `server/` and the container files as maintenance. No knowledge content changed.
+- Validation: `python3 scripts/validate.py --base origin/main`, `python3 -m unittest discover -s tests`, `node --test site/js/lib/*.test.mjs`, the site build, a local server with two simulated devices, headless Chromium for the service worker, and `docker compose build` plus a container health check.
+
 ## 2026-10-21 — Study site: Learn panel
 
 - Added `scripts/wiki_markdown.py`, a strict standard-library renderer for the Markdown subset the wiki uses. Unsupported syntax raises an error with the file and line; all text is escaped, and only `http`, `https`, and `mailto` links are emitted. `github_slug` and `heading_anchors` moved there from `scripts/validate.py`, which now also checks that every page under `wiki/` renders (check 5).

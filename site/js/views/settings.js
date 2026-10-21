@@ -1,7 +1,8 @@
-// Settings: deck size and goals, export and import, and reset.
+// Settings: deck size and goals, sync, export and import, and reset.
 
 import { button, el, plural } from "../dom.js";
 import { SETTING_LIMITS } from "../lib/store.js";
+import { syncPanel } from "./sync.js";
 
 const FIELDS = [
   ["dailySize", "Cards per day", "The most cards in one day's deck."],
@@ -89,9 +90,15 @@ export function renderSettings(app, route, message = "") {
     );
   });
 
-  const storage = app.store.persistent
-    ? "Progress is stored only in this browser. Export it to keep a copy or move it to another device."
-    : "This browser is blocking storage, so progress lasts only until you close the tab. Export it to keep it.";
+  const connected = app.sync.connected && app.sync.status().state !== "unauthorized";
+  const storage = !app.store.persistent
+    ? "This browser is blocking storage, so progress lasts only until you close the tab. Export it to keep it."
+    : connected
+      ? "Progress is saved in this browser and synced to your study server. Export it to keep your own copy."
+      : "Progress is stored only in this browser. Export it to keep a copy or move it to another device.";
+  const resetQuestion = connected
+    ? "Forget the progress stored in this browser? This device is connected, so it downloads your progress from the server again; disconnect first to start empty. Changes not yet uploaded are lost."
+    : "Forget all study progress stored in this browser? Export it first if you may want it back.";
 
   app.view.replaceChildren(
     el(
@@ -101,6 +108,7 @@ export function renderSettings(app, route, message = "") {
       el("h3", { text: "Daily review" }),
       el("div", { class: "fields" }, fields)
     ),
+    syncPanel(app),
     el(
       "section",
       { class: "panel", "aria-labelledby": "data-title" },
@@ -112,8 +120,10 @@ export function renderSettings(app, route, message = "") {
         button("Export progress", "secondary", () => exportProgress(app, say)),
         button("Import progress", "secondary", () => fileInput.click()),
         button("Reset progress on this device", "danger", () => {
-          if (!confirm("Forget all study progress stored in this browser? Export it first if you may want it back.")) return;
+          if (!confirm(resetQuestion)) return;
           app.store.reset();
+          // A connected device downloads its progress again.
+          app.sync.syncNow();
           renderSettings(app, route, "Progress on this device was reset.");
         })
       ),

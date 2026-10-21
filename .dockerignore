@@ -1,0 +1,15 @@
+# Build context for the study site image. .git stays in: the build reads the
+# history for each card's "added" date.
+_site/
+**/__pycache__/
+**/*.pyc
+**/node_modules/
+.DS_Store
+**/.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+.claude/
+.env
+*.env

@@ -5,7 +5,8 @@ Copies the static app from site/ (without its unit tests) and generates:
 
   _site/cards.json                 the review questions in learning/questions/;
   _site/learn/index.json           the Learn topics and pages, in wiki index order;
-  _site/learn/<topic>/<page>.html  each topic page rendered as an HTML fragment.
+  _site/learn/<topic>/<page>.html  each topic page rendered as an HTML fragment;
+  _site/sw.js                      the service worker, with this build's version and file list.
 
 The question files and wiki pages remain the single source of truth; never edit
 the generated output. Pages are rendered by scripts/wiki_markdown.py, which
@@ -22,6 +23,7 @@ Usage:
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import math
@@ -50,6 +52,8 @@ ADDED_HEADING_RE = re.compile(rf"^\+## ({ID_PATTERN}) — ", re.MULTILINE)
 INDEX_ENTRY_RE = re.compile(r"^- \[(?P<label>[^\]]+)\]\((?P<href>[^)\s]+)\)(?: — (?P<text>.*))?$")
 TRAILING_SOURCES_RE = re.compile(r"(?:[\s,;]*(?:and\s+)?\[Source\]\([^)]*\))+\s*$")
 WORDS_PER_MINUTE = 200
+# The line in site/sw.js that the build fills in with the version and the files to precache.
+SW_BUILD_RE = re.compile(r"^const BUILD = \{.*\};", re.MULTILINE)
 # Heading prefix for rendered pages, so wiki headings never collide with IDs in the app shell.
 HEADING_ID_PREFIX = "wiki-"
 
@@ -117,11 +121,46 @@ def main() -> int:
         "cards": cards,
     }
     (OUTPUT / "cards.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    try:
+        version = write_service_worker(OUTPUT, stable={"cards.json": {**payload, "generated": None}})
+    except BuildError as error:
+        print(f"✗ {error}")
+        return 1
     print(
         f"✓ Built {len(cards)} cards in {len(topics)} topics and {len(learn_pages)} Learn pages "
-        f"in {len(learn_index['topics'])} topics into {OUTPUT.relative_to(REPO_ROOT)}/"
+        f"in {len(learn_index['topics'])} topics into {OUTPUT.relative_to(REPO_ROOT)}/ (build {version})"
     )
     return 0
+
+
+def write_service_worker(output: Path, stable: dict[str, object]) -> str:
+    """Fill in sw.js with this build's version and the files to precache.
+
+    The version hashes every other built file, so a deploy that changes
+    anything installs a new service worker, and an identical rebuild does not.
+    `stable` replaces the hashed content of files with build-time noise, such
+    as the generation time in cards.json.
+    """
+    worker = output / "sw.js"
+    if not worker.exists():
+        raise BuildError("site/sw.js is missing")
+    files = sorted(
+        path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file() and path != worker
+    )
+    digest = hashlib.sha256()
+    for name in files:
+        if name in stable:
+            content = json.dumps(stable[name], ensure_ascii=False, sort_keys=True).encode("utf-8")
+        else:
+            content = (output / name).read_bytes()
+        digest.update(name.encode("utf-8") + b"\0" + hashlib.sha256(content).digest())
+    version = digest.hexdigest()[:16]
+    build = json.dumps({"version": version, "files": ["./", *files]}, ensure_ascii=False)
+    text, count = SW_BUILD_RE.subn(lambda _: f"const BUILD = {build};", worker.read_text(encoding="utf-8"), count=1)
+    if count != 1:
+        raise BuildError("site/sw.js has no `const BUILD = {...};` line to fill in")
+    worker.write_text(text, encoding="utf-8")
+    return version
 
 
 # --- Learn --------------------------------------------------------------------------
