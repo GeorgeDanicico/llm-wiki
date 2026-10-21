@@ -364,3 +364,44 @@ Expected points:
 - The database has the new value and the cache still has the old one.
 - Evict or invalidate the key and/or return an error so the caller retries, so readers do not keep the stale entry.
 - Rolling back the already-committed database write is not the normal fix, and write-through gives no atomicity across the two stores.
+
+## REL-WT-007 — A Spring `@Transactional` method updates the database through a repository and then writes the new value to Redis. Why can the cache still be written "too early", and how do you fix it?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#worked-example-cache-written-before-the-transaction-commits)
+
+Expected points:
+
+- The commit happens when the method returns, after the cache write, even though the repository call comes first in the code.
+- If the commit fails, the database rolls back but the cache keeps an uncommitted value; readers can also see it before it is visible in the database.
+- Fix: update the cache after the commit, for example with `TransactionSynchronization.afterCommit()` or `@TransactionalEventListener(phase = AFTER_COMMIT)`.
+
+## REL-WT-008 — Compared with cache-aside invalidation, what does write-through actually change for the next read, and why is "double latency" an overstatement?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#cost)
+
+Expected points:
+
+- Write-through leaves the fresh value in the cache, so the next read hits; cache-aside leaves the key empty, so the next read misses and reloads.
+- Both make a cache call on write (a put or an invalidation), and the cache round trip is usually small next to the database commit.
+- Write-through still adds a synchronous cache step to every write.
+
+## REL-WT-009 — 100,000 devices write a latest reading every second, but only about 2% are viewed. Would you use write-through, and what would you use instead?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#trade-off-and-fit)
+
+Expected points:
+
+- No: writes far outnumber reads, so write-through pays write latency and fills the cache with keys nobody reads (cache pollution).
+- Use cache-aside with invalidation on write, or a short TTL.
+- Reconsider write-through if the read share grows.
+
+## REL-WT-010 — Another microservice writes directly to the shared database behind a write-through cache. What are two ways to stop it serving stale data?
+
+Source: [Write-through caching](../../wiki/reliability/write-through-caching.md#trade-off-and-fit)
+
+Expected points:
+
+- Route that service's writes through the owning service or cache layer, so all writers go through the cache.
+- Invalidate the key when the database changes, using a published change event or change data capture from the database log.
+- Keep a TTL as a backstop.
+

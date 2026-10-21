@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-10-20 — Second write-through caching learning session ingestion
+
+- Preserved a second learning-session summary for topic 103 (write-through caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`; the 2026-10-10 capture was left unchanged.
+- Extended the existing [Write-through caching](wiki/reliability/write-through-caching.md) page rather than creating a new one: read-through pairing, the latency comparison with cache-aside invalidation, a Spring `@Transactional` example in which the cache is written before the commit (fixed by an after-commit update), an admin service that bypasses the cache, and a write-heavy telemetry scenario. Added a library-note entry.
+- Updated reliability, library-note, source-category, and source-catalog indexes; registered four review questions (REL-WT-007 through REL-WT-010).
+- The two sessions agree. Framework API names, latency figures, and the Debezium/CDC example are from memory and unverified.
+- Validation: `python3 scripts/validate.py --base origin/main`.
+
 ## 2026-10-10 — Write-through caching learning session ingestion
 
 - Preserved the learning-session summary for topic 103 (write-through caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
