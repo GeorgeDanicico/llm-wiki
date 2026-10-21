@@ -2,71 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LLM Wiki Flashcards</title>
-  <meta name="description" content="Active-recall flashcards generated from the LLM Wiki review questions.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LLM Wiki Study</title>
+  <meta name="description" content="A daily review and practice flashcards generated from the LLM Wiki review questions.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='5' y='8' width='22' height='16' rx='3' fill='%233b5bdb'/><rect x='9' y='4' width='22' height='16' rx='3' fill='%2391a7ff'/></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="top">
     <div class="wrap top-row">
-      <h1>LLM Wiki <span>Flashcards</span></h1>
-      <p class="stats" id="stats" aria-live="polite"></p>
+      <h1>LLM Wiki <span>Study</span></h1>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#/today" data-tab="today">Today</a>
+        <a href="#/practice" data-tab="practice">Practice</a>
+        <a href="#/settings" data-tab="settings">Settings</a>
+      </nav>
+      <button type="button" class="search-button" id="open-search" aria-haspopup="dialog" aria-label="Search all cards">
+        <span aria-hidden="true">⌕</span><span class="search-label">Search</span> <kbd>/</kbd>
+      </button>
     </div>
   </header>
 
-  <main class="wrap">
-    <section class="controls" aria-label="Session settings">
-      <div class="control-row">
-        <span class="label" id="topics-label">Topics</span>
-        <div class="chips" id="topics" role="group" aria-labelledby="topics-label"></div>
-      </div>
-      <div class="control-row">
-        <span class="label" id="order-label">Order</span>
-        <div class="segmented" role="radiogroup" aria-labelledby="order-label">
-          <button type="button" role="radio" data-order="shuffle">Shuffle</button>
-          <button type="button" role="radio" data-order="weakest">Weakest first</button>
-        </div>
-        <button type="button" class="link-button" id="restart">Restart session</button>
-      </div>
-    </section>
-
-    <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
-    <nav class="card-nav" aria-label="Card navigation">
-      <button type="button" class="nav-button" id="prev" aria-label="Previous card"><span aria-hidden="true">‹</span> Prev</button>
-      <button type="button" class="position" id="open-list" aria-haspopup="dialog">
-        <span id="position-text"></span>
-        <span class="browse">Browse all <kbd>/</kbd></span>
-      </button>
-      <button type="button" class="nav-button" id="next" aria-label="Next card">Next <span aria-hidden="true">›</span></button>
-    </nav>
-
-    <section id="stage" aria-live="polite">
-      <p class="message">Loading cards…</p>
-    </section>
+  <main class="wrap" id="view">
+    <p class="message">Loading cards…</p>
   </main>
 
   <footer class="wrap footer">
     <p class="keys">
       <kbd>Space</kbd> show answer · <kbd>1</kbd> missed it · <kbd>2</kbd> knew it ·
-      <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>/</kbd> browse all
+      <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>/</kbd> search or browse · <kbd>Esc</kbd> leave a review
     </p>
     <p>
       Generated from <a id="repo-link" href="https://github.com/GeorgeDanicico/llm-wiki">the wiki's review questions</a><span id="generated"></span>.
-      Progress is stored only in this browser.
-      <button type="button" class="link-button" id="reset">Reset progress</button>
+      <span id="storage-note">Progress is stored only in this browser.</span>
     </p>
   </footer>
 
   <dialog id="browser" aria-labelledby="browser-title">
     <div class="dialog-head">
-      <h2 id="browser-title">Questions in this session</h2>
-      <button type="button" class="close" id="close-list" aria-label="Close">✕</button>
+      <h2 id="browser-title">Cards in this session</h2>
+      <button type="button" class="close" id="close-browse" aria-label="Close">✕</button>
     </div>
-    <input type="search" id="search" placeholder="Filter by question, topic, or ID" aria-label="Filter questions" autocomplete="off">
-    <p class="list-summary" id="list-summary"></p>
-    <ol class="card-list" id="card-list"></ol>
+    <input type="search" class="dialog-search" id="browse-filter" placeholder="Filter by question, topic, or ID" aria-label="Filter cards in this session" autocomplete="off">
+    <p class="list-summary" id="browse-summary"></p>
+    <ol class="card-list" id="browse-list"></ol>
+  </dialog>
+
+  <dialog id="search-dialog" aria-labelledby="search-title">
+    <div class="dialog-head">
+      <h2 id="search-title">Search all cards</h2>
+      <button type="button" class="close" id="close-search" aria-label="Close">✕</button>
+    </div>
+    <input type="search" class="dialog-search" id="search-input" placeholder="Search by question, topic, or ID" aria-label="Search all cards" autocomplete="off">
+    <p class="list-summary" id="search-summary" aria-live="polite"></p>
+    <ul class="card-list" id="search-results"></ul>
   </dialog>
 
   <template id="card-template">
@@ -74,13 +63,14 @@
       <div class="card-meta">
         <span class="topic"></span>
         <span class="card-id"></span>
+        <span class="new" hidden>New</span>
         <span class="verdict" hidden></span>
-        <span class="box" title="Times known in a row (resets when missed)"></span>
+        <span class="box" role="img"></span>
       </div>
-      <h2 class="question"></h2>
+      <h3 class="question"></h3>
       <button type="button" class="reveal">Show answer <kbd>Space</kbd></button>
       <div class="answer" hidden>
-        <h3>Expected points</h3>
+        <h4>Expected points</h4>
         <ul class="points"></ul>
         <a class="source" target="_blank" rel="noopener"></a>
       </div>
@@ -91,6 +81,6 @@
     </div>
   </template>
 
-  <script src="app.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

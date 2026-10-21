@@ -1,0 +1,115 @@
+// Settings: deck size and goals, export and import, and reset.
+
+import { button, el, plural } from "../dom.js";
+import { SETTING_LIMITS } from "../lib/store.js";
+
+const FIELDS = [
+  ["dailySize", "Cards per day", "The most cards in one day's deck."],
+  ["newPerDay", "New cards per day", "Cards you have not seen yet, added to each day's deck."],
+  ["dailyGoal", "Daily goal", "Reviews of any kind that keep your streak, if the deck alone is smaller."],
+];
+
+export function renderSettings(app, route, message = "") {
+  // Filled in after rendering, so screen readers announce it.
+  const status = el("p", { class: "status-line", role: "status" });
+  const say = (text) => {
+    status.textContent = text;
+  };
+
+  const fields = FIELDS.map(([key, label, hint]) => {
+    const [min, max] = SETTING_LIMITS[key];
+    const input = el("input", {
+      type: "number",
+      id: `setting-${key}`,
+      min,
+      max,
+      step: 1,
+      inputmode: "numeric",
+      value: app.store.setting(key),
+      "aria-describedby": `setting-${key}-hint`,
+    });
+    input.addEventListener("change", () => {
+      const value = Number(input.value);
+      if (!Number.isInteger(value) || value < min || value > max) {
+        input.value = app.store.setting(key);
+        say(`${label} must be a whole number from ${min} to ${max}.`);
+        return;
+      }
+      app.store.setSetting(key, value);
+      say(`${label} saved.`);
+    });
+    return el(
+      "div",
+      { class: "field" },
+      el("label", { for: input.id, text: label }),
+      input,
+      el("p", { class: "hint", id: `setting-${key}-hint`, text: hint })
+    );
+  });
+
+  const fileInput = el("input", { type: "file", accept: "application/json,.json", hidden: true });
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    let result;
+    try {
+      result = app.store.importData(JSON.parse(await file.text()));
+    } catch {
+      say(`Could not read ${file.name}: it is not a progress export.`);
+      return;
+    }
+    const skipped = result.invalid ? ` ${plural(result.invalid, "row")} skipped as invalid.` : "";
+    renderSettings(
+      app,
+      route,
+      (result.changed ? `Imported ${plural(result.changed, "new or newer row")}.` : "Nothing new in that file.") + skipped
+    );
+  });
+
+  const storage = app.store.persistent
+    ? "Progress is stored only in this browser. Export it to keep a copy or move it to another device."
+    : "This browser is blocking storage, so progress lasts only until you close the tab. Export it to keep it.";
+
+  app.view.replaceChildren(
+    el(
+      "section",
+      { class: "panel", "aria-labelledby": "settings-title" },
+      el("h2", { id: "settings-title", tabindex: "-1", text: "Settings" }),
+      el("h3", { text: "Daily review" }),
+      el("div", { class: "fields" }, fields)
+    ),
+    el(
+      "section",
+      { class: "panel", "aria-labelledby": "data-title" },
+      el("h2", { id: "data-title", text: "Your progress" }),
+      el("p", { class: "lead", text: storage }),
+      el(
+        "div",
+        { class: "actions start" },
+        button("Export progress", "secondary", () => exportProgress(app, say)),
+        button("Import progress", "secondary", () => fileInput.click()),
+        button("Reset progress on this device", "danger", () => {
+          if (!confirm("Forget all study progress stored in this browser? Export it first if you may want it back.")) return;
+          app.store.reset();
+          renderSettings(app, route, "Progress on this device was reset.");
+        })
+      ),
+      fileInput,
+      el("p", { class: "hint", text: "Importing merges a file into this device's progress; newer rows win, so nothing is lost by importing twice." }),
+      status
+    )
+  );
+  if (message) say(message);
+}
+
+function exportProgress(app, say) {
+  const data = app.store.exportData();
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = el("a", { href: url, download: `llm-wiki-study-${app.today()}.json` });
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  say(`Exported ${plural(data.reviews.length, "review")}.`);
+}
