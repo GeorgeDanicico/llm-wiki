@@ -155,6 +155,45 @@ h1 span { color: var(--muted); font-weight: 500; }
 
 .search-button:hover { border-color: var(--accent); color: var(--text); }
 
+/* Sync status and the service worker's update prompt */
+
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sync-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--good);
+}
+
+.sync-status:hover { color: var(--text); }
+.sync-status[data-state="syncing"]::before { background: var(--accent); }
+.sync-status[data-state="offline"]::before { background: var(--muted); }
+.sync-status[data-state="error"]::before,
+.sync-status[data-state="unauthorized"]::before { background: var(--warn); }
+.sync-status[data-state="error"],
+.sync-status[data-state="unauthorized"] { color: var(--warn); }
+
+.update-button {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 /* Focus mode: a running review hides the header and footer; Esc leaves. */
 
 body.focus .top, body.focus .footer { display: none; }
@@ -339,6 +378,27 @@ h2[tabindex]:focus { outline: none; }
 .actions.start { justify-content: flex-start; margin-bottom: 8px; }
 
 .status-line { margin: 10px 0 0; font-size: 0.9rem; color: var(--accent); min-height: 1.4em; }
+
+.token-form label { display: block; font-weight: 600; font-size: 0.9rem; }
+
+.token-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+
+.token-row input {
+  flex: 1 1 16em;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.token-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.notice.warn { background: var(--warn-soft); color: var(--warn); }
+
+.warn-text { color: var(--warn); }
 
 .danger {
   padding: 10px 18px;
@@ -1073,7 +1133,8 @@ input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline
   .top-row { gap: 8px; }
   .tabs { order: 3; width: 100%; margin-right: 0; }
   .tabs a { flex: 1; text-align: center; }
-  .search-button { margin-left: auto; }
+  /* The title takes the free space, pushing status and search to the right. */
+  h1 { margin-right: auto; }
   .search-button kbd { display: none; }
   .hero { padding: 20px 18px; }
   .hero h2 { font-size: 1.3rem; }
