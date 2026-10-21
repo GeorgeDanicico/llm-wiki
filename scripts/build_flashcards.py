@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""Build the flashcards site into _site/ for GitHub Pages.
+"""Build the study site into _site/ for GitHub Pages.
 
-Copies the static app from site/ (without its unit tests) and generates
-_site/cards.json from the review questions in learning/questions/. The question
-files remain the single source of truth; never edit the generated output.
+Copies the static app from site/ (without its unit tests) and generates:
+
+  _site/cards.json                 the review questions in learning/questions/;
+  _site/learn/index.json           the Learn topics and pages, in wiki index order;
+  _site/learn/<topic>/<page>.html  each topic page rendered as an HTML fragment.
+
+The question files and wiki pages remain the single source of truth; never edit
+the generated output. Pages are rendered by scripts/wiki_markdown.py, which
+fails the build on Markdown it does not support.
 
 Each card records the date its question was first committed (``added``), read
 from Git history. Without full history, for example in a shallow clone, the
@@ -18,17 +24,20 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import os
 import re
 import shutil
 import subprocess
 import sys
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from question_bank import ID_PATTERN, QUESTION_DIR, REPO_ROOT, load_questions  # noqa: E402
+from wiki_markdown import UnsupportedMarkdown, is_external, render, render_inline  # noqa: E402
 
 SITE_SRC = REPO_ROOT / "site"
 OUTPUT = REPO_ROOT / "_site"
@@ -37,6 +46,16 @@ DEFAULT_REPOSITORY = "GeorgeDanicico/llm-wiki"
 # Files in site/ that are not part of the published app.
 SKIPPED_SITE_FILES = ("*.test.mjs", "package.json")
 ADDED_HEADING_RE = re.compile(rf"^\+## ({ID_PATTERN}) — ", re.MULTILINE)
+# A Learn index entry: "- [Title](target.md) — summary".
+INDEX_ENTRY_RE = re.compile(r"^- \[(?P<label>[^\]]+)\]\((?P<href>[^)\s]+)\)(?: — (?P<text>.*))?$")
+TRAILING_SOURCES_RE = re.compile(r"(?:[\s,;]*(?:and\s+)?\[Source\]\([^)]*\))+\s*$")
+WORDS_PER_MINUTE = 200
+# Heading prefix for rendered pages, so wiki headings never collide with IDs in the app shell.
+HEADING_ID_PREFIX = "wiki-"
+
+
+class BuildError(Exception):
+    pass
 
 
 def main() -> int:
@@ -74,9 +93,23 @@ def main() -> int:
             card["added"] = added[question.id]
         cards.append(card)
 
+    try:
+        learn_index, learn_pages = build_learn(questions, blob_root)
+    except (BuildError, UnsupportedMarkdown) as error:
+        print(f"✗ {error}")
+        print("Fix the wiki page (python3 scripts/validate.py lists every problem) or extend scripts/wiki_markdown.py.")
+        return 1
+
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
     shutil.copytree(SITE_SRC, OUTPUT, ignore=shutil.ignore_patterns(*SKIPPED_SITE_FILES))
+    for relative, fragment in learn_pages.items():
+        target = OUTPUT / "learn" / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(fragment, encoding="utf-8")
+    (OUTPUT / "learn" / "index.json").write_text(
+        json.dumps(learn_index, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     payload = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "repository": f"https://github.com/{repository}",
@@ -84,8 +117,158 @@ def main() -> int:
         "cards": cards,
     }
     (OUTPUT / "cards.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"✓ Built {len(cards)} cards in {len(topics)} topics into {OUTPUT.relative_to(REPO_ROOT)}/")
+    print(
+        f"✓ Built {len(cards)} cards in {len(topics)} topics and {len(learn_pages)} Learn pages "
+        f"in {len(learn_index['topics'])} topics into {OUTPUT.relative_to(REPO_ROOT)}/"
+    )
     return 0
+
+
+# --- Learn --------------------------------------------------------------------------
+
+
+def build_learn(questions, blob_root: str) -> tuple[dict, dict[str, str]]:
+    """The Learn index and the rendered fragments, keyed by "<topic>/<page>.html".
+
+    Topics follow the "## Topics" list in wiki/index.md and pages follow each
+    topic's index.md list, so ordering and text come from the indexes rather
+    than from the file system. The library is not part of Learn.
+    """
+    root_index = WIKI_DIR / "index.md"
+    topics = []
+    # Absolute page path -> (topic slug, page slug), for link rewriting.
+    routes: dict[Path, tuple[str, str]] = {}
+    for line_number, entry in topics_section(root_index):
+        index_path = (root_index.parent / entry["href"]).resolve()
+        if index_path.name != "index.md" or index_path.parent.parent != WIKI_DIR:
+            raise BuildError(f"{rel(root_index)}:{line_number}: topic entries must link to wiki/<topic>/index.md")
+        slug = index_path.parent.name
+        pages = []
+        for page_line, page_entry in index_entries(index_path):
+            path = (index_path.parent / page_entry["href"].partition("#")[0]).resolve()
+            if path.name == "index.md" or path.suffix != ".md" or path in routes:
+                continue
+            if path.parent != index_path.parent:
+                raise BuildError(f"{rel(index_path)}:{page_line}: {page_entry['href']} is outside the topic's directory")
+            if not path.exists():
+                raise BuildError(f"{rel(index_path)}:{page_line}: {page_entry['href']} does not exist")
+            routes[path] = (slug, path.stem)
+            pages.append((path, index_path, page_line, page_entry))
+        topics.append((slug, root_index, line_number, entry, index_path, pages))
+
+    by_page: dict[Path, list] = {}
+    for question in questions:
+        by_page.setdefault(question.source_path, []).append(question)
+
+    payload = {"topics": []}
+    fragments: dict[str, str] = {}
+    for slug, root, line_number, entry, index_path, pages in topics:
+        topic = {
+            "slug": slug,
+            "name": entry["label"],
+            "description": render_inline(
+                entry["text"] or "", root, line_number, resolve_link=learn_link_resolver(root, routes, blob_root)
+            ),
+            "pages": [],
+        }
+        for path, index, page_line, page_entry in pages:
+            page_slug = path.stem
+            rendered = render(
+                path.read_text(encoding="utf-8"),
+                rel(path),
+                resolve_link=learn_link_resolver(path, routes, blob_root),
+                heading_offset=1,
+                id_prefix=HEADING_ID_PREFIX,
+                strip_title=True,
+            )
+            page_questions = by_page.get(path, [])
+            sections = [
+                {
+                    "anchor": heading.anchor,
+                    "title": heading.text,
+                    "level": heading.level,
+                    "questions": [q.id for q in page_questions if q.source_anchor == heading.anchor],
+                }
+                for heading in rendered.headings
+                if heading.level > 1
+            ]
+            summary = TRAILING_SOURCES_RE.sub("", page_entry["text"] or "").strip()
+            topic["pages"].append(
+                {
+                    "path": rel(path),
+                    "slug": page_slug,
+                    "title": rendered.title or page_entry["label"],
+                    # Inline HTML, escaped by the renderer.
+                    "summary": render_inline(
+                        summary, index, page_line, resolve_link=learn_link_resolver(index, routes, blob_root)
+                    ),
+                    "minutes": max(1, math.ceil(rendered.words / WORDS_PER_MINUTE)),
+                    "sections": sections,
+                    "questions": [q.id for q in page_questions],
+                }
+            )
+            fragments[f"{slug}/{page_slug}.html"] = rendered.html
+        payload["topics"].append(topic)
+    return payload, fragments
+
+
+def topics_section(index: Path):
+    """Entries of the "## Topics" list in wiki/index.md."""
+    in_topics = False
+    for number, line in enumerate(index.read_text(encoding="utf-8").splitlines(), 1):
+        if line.startswith("## "):
+            in_topics = line.strip() == "## Topics"
+            continue
+        match = INDEX_ENTRY_RE.match(line) if in_topics else None
+        if match:
+            yield number, match.groupdict()
+
+
+def index_entries(index: Path):
+    for number, line in enumerate(index.read_text(encoding="utf-8").splitlines(), 1):
+        match = INDEX_ENTRY_RE.match(line)
+        if match and not is_external(match.group("href")):
+            yield number, match.groupdict()
+
+
+def learn_link_resolver(page: Path, routes: dict[Path, tuple[str, str]], blob_root: str):
+    """Rewrite links for the Learn reader.
+
+    Another Learn page becomes a hash route (with its anchor), a topic index
+    becomes that topic's Learn list, and any other repository file, such as a
+    captured source or a library page, becomes its GitHub URL in a new tab.
+    External links are kept and open in a new tab.
+    """
+
+    def resolve(target: str) -> tuple[str, bool]:
+        if is_external(target):
+            return target, True
+        file_part, _, anchor = target.partition("#")
+        destination = (page.parent / file_part).resolve() if file_part else page
+        if destination in routes:
+            topic, slug = routes[destination]
+            suffix = f"/{quote(anchor)}" if anchor else ""
+            return f"#/learn/{quote(topic)}/{quote(slug)}{suffix}", False
+        if destination == WIKI_DIR / "index.md":
+            return "#/learn", False
+        if destination.name == "index.md" and destination.parent.parent == WIKI_DIR:
+            if any(topic == destination.parent.name for topic, _ in routes.values()):
+                return f"#/learn/{quote(destination.parent.name)}", False
+        try:
+            repository_path = destination.relative_to(REPO_ROOT).as_posix()
+        except ValueError:
+            raise BuildError(f"{rel(page)}: link {target!r} points outside the repository") from None
+        return blob_root + quote(repository_path) + (f"#{quote(anchor)}" if anchor else ""), True
+
+    return resolve
+
+
+def quote(text: str) -> str:
+    return urllib.parse.quote(text, safe="/-_.~")
+
+
+def rel(path: Path) -> str:
+    return path.relative_to(REPO_ROOT).as_posix()
 
 
 def inline_markdown(text: str) -> str:
