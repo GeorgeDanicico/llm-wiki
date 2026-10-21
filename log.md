@@ -1,5 +1,14 @@
 # Wiki Log
 
+## 2026-10-21 — Study site: Learn panel
+
+- Added `scripts/wiki_markdown.py`, a strict standard-library renderer for the Markdown subset the wiki uses. Unsupported syntax raises an error with the file and line; all text is escaped, and only `http`, `https`, and `mailto` links are emitted. `github_slug` and `heading_anchors` moved there from `scripts/validate.py`, which now also checks that every page under `wiki/` renders (check 5).
+- `scripts/build_flashcards.py` now also writes `_site/learn/index.json` (topics and pages in wiki index order, with summaries, reading time, sections, and questions) and one rendered fragment per topic page. Wiki links become Learn routes; source, library, and other repository links point to GitHub.
+- Added the **Learn** view (topics, a topic's pages, and a page reader with section chips, a section list, **Check yourself**, **Mark as learned**, and **Next page**). Today now draws new cards only from learned pages (setting `onlyLearnedPages`, on by default) and offers the next page to learn when nothing else is available. Pages whose cards carry v1 baseline progress are marked learned once, on load.
+- Repaired two code fences on [Write-through caching](wiki/reliability/write-through-caching.md) that had lost two of their three backticks (from the 2026-10-10 ingestion, which ran without the validator). Fence markers only; no wording changed.
+- Added Python unit tests under `tests/` (run in `validate.yml`) and Node tests for page gating, page migration, and the Learn index.
+- Validation: `python3 scripts/validate.py --base origin/main`, `python3 -m unittest discover -s tests`, `node --test site/js/lib/*.test.mjs`, and the site build passed; checked in a browser at desktop and 375 px widths, light and dark.
+
 ## 2026-10-21 — Study site: daily review, streak, and new layout
 
 - Rebuilt the flashcards app (`site/`) as ES modules with three views: **Today** (a daily deck of due and new cards, streak, mastery, due-tomorrow count, 12-week activity grid, topic list), **Practice** (by topic, all topics, or chosen topics), and **Settings** (deck size, new cards per day, daily goal, export, import, reset). Search covers every card; old `#CARD-ID` links still work.
