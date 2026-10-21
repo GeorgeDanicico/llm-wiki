@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-21 — Study site: daily review, streak, and new layout
+
+- Rebuilt the flashcards app (`site/`) as ES modules with three views: **Today** (a daily deck of due and new cards, streak, mastery, due-tomorrow count, 12-week activity grid, topic list), **Practice** (by topic, all topics, or chosen topics), and **Settings** (deck size, new cards per day, daily goal, export, import, reset). Search covers every card; old `#CARD-ID` links still work.
+- Progress is now an append-only review log in the browser (`llm-wiki-study:v2`); boxes, due dates, the deck, and streaks are derived from it. Earlier `llm-wiki-flashcards:v1` progress is migrated to baseline rows on first load, and the v1 key is kept.
+- `scripts/build_flashcards.py` adds each card's `added` date (from Git history), `pageSlug`, and `anchor`, and no longer copies tests into `_site/`. The Pages workflow fetches full history; the validation workflow runs the new Node unit tests. No knowledge content changed.
+- Validation: `python3 scripts/validate.py --base origin/main`, `node --test site/js/lib/*.test.mjs`, and the flashcard build passed; checked in a browser at desktop and 375 px widths, light and dark, with storage blocked, and with v1 data migrated.
+
 ## 2026-10-20 — Second write-through caching learning session ingestion
 
 - Preserved a second learning-session summary for topic 103 (write-through caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`; the 2026-10-10 capture was left unchanged.
