@@ -1,14 +1,19 @@
-// Boot: load the cards, open (and if needed migrate) progress, and route.
+// Boot: load the cards and the Learn index, open (and if needed migrate)
+// progress, and route.
 //
 // Cards come from cards.json, generated from learning/questions/ by
-// scripts/build_flashcards.py. Progress is an append-only review log in this
+// scripts/build_flashcards.py, which also writes learn/index.json and one
+// rendered fragment per wiki page under learn/. Progress is an append-only review log in this
 // browser (js/lib/store.js); everything else is derived from it.
 
 import { $, isTyping } from "./dom.js";
-import { localDay } from "./lib/schedule.js";
+import { indexLearn } from "./lib/learn.js";
+import { learnedPageGate, localDay, pagePath } from "./lib/schedule.js";
 import { createStore } from "./lib/store.js";
 import { parseRoute, sectionOf, startRouter } from "./router.js";
+import { renderLearn, renderLearnTopic } from "./views/learn.js";
 import { renderCardLink, renderPractice, renderPracticeSession } from "./views/practice.js";
+import { renderReader } from "./views/reader.js";
 import { runSession } from "./views/review.js";
 import { openSearch } from "./views/search.js";
 import { renderSettings } from "./views/settings.js";
@@ -17,6 +22,9 @@ import { renderDaily, renderToday } from "./views/today.js";
 const VIEWS = {
   today: renderToday,
   daily: renderDaily,
+  learn: renderLearn,
+  "learn-topic": renderLearnTopic,
+  reader: renderReader,
   practice: renderPractice,
   "practice-session": renderPracticeSession,
   card: renderCardLink,
@@ -33,6 +41,8 @@ const app = {
   cards: [],
   topics: [],
   cardById: new Map(),
+  // The Learn index (js/lib/learn.js indexLearn), or null when it failed to load.
+  learn: null,
   store: null,
   view: $("#view"),
   today: () => localDay(),
@@ -49,6 +59,9 @@ const app = {
     });
   },
   refresh: () => show(route),
+  // The canBeNew(card, day) gate for the daily deck: new cards come only from
+  // learned pages unless the onlyLearnedPages setting is off.
+  newCardGate: () => learnedPageGate(app.store.pages(), { enabled: app.store.setting("onlyLearnedPages") }),
   // Start a session in place, such as reviewing the cards just missed.
   run(options) {
     stop();
@@ -63,6 +76,12 @@ function stop() {
 }
 
 function show(next) {
+  // A view may handle a route change itself, such as the reader moving to
+  // another section of the same page.
+  if (next !== route && active?.reroute?.(next)) {
+    route = next;
+    return;
+  }
   // A refresh re-renders the same route and leaves focus to the view.
   const moved = next !== route;
   route = next;
@@ -117,10 +136,14 @@ function setupEvents() {
 
 async function init() {
   let data;
+  // The Learn index is optional: without it Learn shows an error and Today
+  // offers no next page, but reviewing still works.
+  const learnIndex = loadJson("learn/index.json").catch((error) => {
+    console.error(error);
+    return null;
+  });
   try {
-    const response = await fetch("cards.json", { cache: "no-cache" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    data = await response.json();
+    data = await loadJson("cards.json");
   } catch (error) {
     app.view.innerHTML =
       "<p class='message'>Could not load <code>cards.json</code>. Build the site with " +
@@ -132,7 +155,10 @@ async function init() {
   app.cards = data.cards;
   app.topics = data.topics;
   app.cardById = new Map(app.cards.map((card) => [card.id, card]));
-  app.store = createStore();
+  const learnData = await learnIndex;
+  app.learn = learnData ? indexLearn(learnData) : null;
+  // Pages of cards carried over from the old flashcards count as learned.
+  app.store = createStore({ pageOf: (id) => pagePath(app.cardById.get(id)) });
   $("#repo-link").href = data.repository;
   $("#generated").textContent = ` (updated ${new Date(data.generated).toLocaleDateString()})`;
   renderStorageNote();
@@ -140,6 +166,12 @@ async function init() {
 
   setupEvents();
   startRouter(show);
+}
+
+async function loadJson(url) {
+  const response = await fetch(url, { cache: "no-cache" });
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+  return response.json();
 }
 
 init();

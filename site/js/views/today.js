@@ -1,6 +1,7 @@
 // Today: the daily deck, streak and progress tiles, activity grid, and topics.
 
 import { button, el, plural } from "../dom.js";
+import { nextToLearn } from "../lib/learn.js";
 import {
   ACTIVITY_WEEKS,
   SECONDS_PER_CARD,
@@ -21,14 +22,15 @@ function todayDeck(app) {
   const today = app.today();
   const reviews = app.store.reviews();
   const settings = app.store.settings();
-  const deck = buildDeck({ cards: app.cards, reviews, today, settings });
-  return { today, reviews, settings, deck, done: deckProgress(deck.cards, reviews, today) };
+  const canBeNew = app.newCardGate();
+  const deck = buildDeck({ cards: app.cards, reviews, today, settings, canBeNew });
+  return { today, reviews, settings, canBeNew, deck, done: deckProgress(deck.cards, reviews, today) };
 }
 
 export function renderToday(app) {
-  const { today, reviews, settings, deck, done } = todayDeck(app);
+  const { today, reviews, settings, canBeNew, deck, done } = todayDeck(app);
   const counts = dayCounts(reviews);
-  const streakInfo = streak(metDays({ cards: app.cards, reviews, today, settings }), today);
+  const streakInfo = streak(metDays({ cards: app.cards, reviews, today, settings, canBeNew }), today);
   const states = cardStates(reviews);
   const toGoal = Math.max(0, settings.dailyGoal - (counts.get(today) ?? 0));
 
@@ -37,7 +39,7 @@ export function renderToday(app) {
     : "";
   app.view.replaceChildren(
     notice,
-    hero(app, { today, deck, done, streakInfo, toGoal }),
+    hero(app, { today, deck, done, streakInfo, toGoal, gated: settings.onlyLearnedPages }),
     tiles(app, { today, states, streakInfo }),
     activityPanel(counts, today),
     el(
@@ -54,7 +56,7 @@ export function renderToday(app) {
   );
 }
 
-function hero(app, { today, deck, done, streakInfo, toGoal }) {
+function hero(app, { today, deck, done, streakInfo, toGoal, gated }) {
   const date = new Date(`${today}T12:00:00`).toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
@@ -83,13 +85,28 @@ function hero(app, { today, deck, done, streakInfo, toGoal }) {
     }
   } else {
     title = "Nothing due today";
-    text = "Every card you have started is scheduled for later, and there are no new cards.";
+    text = gated
+      ? "Every card you have started is scheduled for later. New cards come from pages you mark as learned."
+      : "Every card you have started is scheduled for later, and there are no new cards.";
+    // Nothing due and no new cards: learning the next page adds some.
+    const page = app.learn && nextToLearn(app.learn, app.store);
+    if (page) {
+      actions.append(
+        el("a", { class: "primary", href: `#/learn/${encodeURIComponent(page.topic)}/${encodeURIComponent(page.slug)}` },
+          `Learn your next page: ${page.title}`)
+      );
+    }
   }
 
   if (!remaining.length && !streakInfo.todayMet && toGoal) {
-    actions.prepend(
-      button(`Practice ${toGoal} more to keep your streak`, "primary", () => startExtraPractice(app, toGoal))
-    );
+    const practice = button(`Practice ${toGoal} more to keep your streak`, "primary", () => startExtraPractice(app, toGoal));
+    // Keep one primary action: learning the next page, when it is offered.
+    if (actions.querySelector(".primary")) {
+      practice.className = "secondary";
+      actions.append(practice);
+    } else {
+      actions.prepend(practice);
+    }
   } else if (!remaining.length) {
     text += " Today counts toward your streak.";
   }

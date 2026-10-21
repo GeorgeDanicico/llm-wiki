@@ -47,6 +47,29 @@ export function renderSettings(app, route, message = "") {
     );
   });
 
+  const gate = el("input", {
+    type: "checkbox",
+    id: "setting-onlyLearnedPages",
+    "aria-describedby": "setting-onlyLearnedPages-hint",
+  });
+  gate.checked = app.store.setting("onlyLearnedPages");
+  gate.addEventListener("change", () => {
+    app.store.setSetting("onlyLearnedPages", gate.checked);
+    say(gate.checked ? "New cards now come only from pages you have learned." : "New cards now come from every page.");
+  });
+  fields.push(
+    el(
+      "div",
+      { class: "field" },
+      el("label", { class: "checkbox", for: gate.id }, gate, el("span", { text: "New cards only from learned pages" })),
+      el("p", {
+        class: "hint",
+        id: "setting-onlyLearnedPages-hint",
+        text: "Questions join the daily review after you mark their page as learned in Learn. Turn this off to draw new cards from every page.",
+      })
+    )
+  );
+
   const fileInput = el("input", { type: "file", accept: "application/json,.json", hidden: true });
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
