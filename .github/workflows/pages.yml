@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so each card gets the date its question was added.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
