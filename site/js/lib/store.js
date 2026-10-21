@@ -276,6 +276,10 @@ export function createStore({ storage = defaultStorage(), now = () => new Date()
     get cursor() {
       return doc.cursor;
     },
+    // Changed rows not yet acknowledged by the progress server.
+    get pending() {
+      return doc.outbox.length;
+    },
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
@@ -357,6 +361,16 @@ export function createStore({ storage = defaultStorage(), now = () => new Date()
         }
       }
       if (Number.isInteger(cursor)) doc.cursor = cursor;
+      save();
+    },
+    // Queue every row and restart from cursor 0, as when connecting a device
+    // that already has data: everything is uploaded and everything pulled, and
+    // the merge rule makes that safe.
+    queueAll() {
+      for (const [table, keyField] of Object.entries(TABLES)) {
+        for (const row of Object.values(doc[table])) queue(doc, table, row[keyField]);
+      }
+      doc.cursor = 0;
       save();
     },
     // Merge rows pulled from the server (not queued for sending back).

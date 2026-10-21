@@ -4,12 +4,16 @@
 // Cards come from cards.json, generated from learning/questions/ by
 // scripts/build_flashcards.py, which also writes learn/index.json and one
 // rendered fragment per wiki page under learn/. Progress is an append-only review log in this
-// browser (js/lib/store.js); everything else is derived from it.
+// browser (js/lib/store.js); everything else is derived from it. With a device
+// token, js/lib/sync.js keeps it in step with the progress server; without
+// one (as on GitHub Pages) progress stays in this browser.
 
 import { $, isTyping } from "./dom.js";
 import { indexLearn } from "./lib/learn.js";
 import { learnedPageGate, localDay, pagePath } from "./lib/schedule.js";
 import { createStore } from "./lib/store.js";
+import { createSync } from "./lib/sync.js";
+import { registerServiceWorker } from "./pwa.js";
 import { parseRoute, sectionOf, startRouter } from "./router.js";
 import { renderLearn, renderLearnTopic } from "./views/learn.js";
 import { renderCardLink, renderPractice, renderPracticeSession } from "./views/practice.js";
@@ -17,6 +21,7 @@ import { renderReader } from "./views/reader.js";
 import { runSession } from "./views/review.js";
 import { openSearch } from "./views/search.js";
 import { renderSettings } from "./views/settings.js";
+import { renderSyncStatus } from "./views/sync.js";
 import { renderDaily, renderToday } from "./views/today.js";
 
 const VIEWS = {
@@ -44,6 +49,8 @@ const app = {
   // The Learn index (js/lib/learn.js indexLearn), or null when it failed to load.
   learn: null,
   store: null,
+  // Sync with the progress server (js/lib/sync.js); off without a device token.
+  sync: null,
   view: $("#view"),
   today: () => localDay(),
   topicName: (slug) => app.topics.find((topic) => topic.slug === slug)?.name ?? slug,
@@ -100,9 +107,13 @@ function show(next) {
 }
 
 function renderStorageNote() {
-  $("#storage-note").textContent = app.store.persistent
-    ? "Progress is stored only in this browser."
-    : "This browser is blocking storage, so progress lasts only until you close the tab.";
+  const connected = app.sync?.connected && app.sync.status().state !== "unauthorized";
+  $("#storage-note").textContent = !app.store.persistent
+    ? "This browser is blocking storage, so progress lasts only until you close the tab" +
+      (connected ? " unless it has synced." : ".")
+    : connected
+      ? "Progress is saved in this browser and synced to your study server."
+      : "Progress is stored only in this browser.";
 }
 
 function setupEvents() {
@@ -161,11 +172,26 @@ async function init() {
   app.store = createStore({ pageOf: (id) => pagePath(app.cardById.get(id)) });
   $("#repo-link").href = data.repository;
   $("#generated").textContent = ` (updated ${new Date(data.generated).toLocaleDateString()})`;
+  app.sync = createSync({ store: app.store });
   renderStorageNote();
   app.store.subscribe(renderStorageNote);
+  app.sync.subscribe(renderStorageNote);
+  renderSyncStatus(app);
+  // Rows pulled from another device change what the overview pages show.
+  // Running reviews and the reader are left alone.
+  let received = 0;
+  app.sync.subscribe((status) => {
+    if (status.received === received) return;
+    received = status.received;
+    if (!["today", "learn", "learn-topic", "practice"].includes(route?.name)) return;
+    const y = window.scrollY;
+    app.refresh();
+    window.scrollTo(0, y);
+  });
 
   setupEvents();
   startRouter(show);
+  app.sync.start();
 }
 
 async function loadJson(url) {
@@ -174,4 +200,5 @@ async function loadJson(url) {
   return response.json();
 }
 
+registerServiceWorker();
 init();
