@@ -28,3 +28,6 @@ jobs:
       - name: Validate links, indexes, and questions
         if: github.event_name != 'pull_request'
         run: python scripts/validate.py
+
+      - name: Unit-test the study site's scheduling and storage
+        run: node --test site/js/lib/*.test.mjs
