@@ -36,7 +36,17 @@ The repository deliberately uses Markdown and Git only. It has no database, vect
 
 ## Flashcards
 
-The flashcards are generated, never written by hand. `scripts/build_flashcards.py` reads `learning/questions/` and writes `_site/cards.json` next to the static app from `site/`. The **Deploy flashcards** workflow publishes it to GitHub Pages on every push to `main`. Use Prev/Next (or the arrow keys) to move between cards, or **Browse all** (`/`) to search the session's questions and jump to any of them. Each card has its own link, such as `#DATA-OL-004`. Progress is stored only in each browser's local storage.
+The flashcards are generated, never written by hand. `scripts/build_flashcards.py` reads `learning/questions/` and writes `_site/cards.json` next to the static app from `site/`, recording the date each question was first committed so recent cards get a **New** badge. The **Deploy flashcards** workflow publishes it to GitHub Pages on every push to `main`.
+
+The site has three views:
+
+- **Today** — a short daily review (due cards first, then a few new ones; 12 cards by default), with a streak, mastered and due-tomorrow counts, a 12-week activity grid, and the topic list. A day counts toward the streak when its deck is finished or it has at least 10 reviews of any kind.
+- **Practice** — free review of one topic, all topics, or a chosen set, shuffled or weakest first. Practice counts toward the daily goal but never changes when a card is next due.
+- **Settings** — cards per day, new cards per day, the daily goal, and **Export progress**, **Import progress** (merges a file; newer rows win), and **Reset progress on this device**.
+
+During a review, `Space` shows the answer, `1`/`2` (or `j`/`k`) grade it, the arrow keys move between cards, `/` browses the session's cards, and `Esc` leaves. On a phone, swipe a revealed card right for "knew it" or left for "missed it". Outside a review, `/` searches every card. Old card links such as `#DATA-OL-004` still open that card.
+
+Scheduling uses Leitner boxes with intervals of 1, 2, 4, 8, 16, and 32 days, derived from a log of reviews kept only in each browser's local storage. Progress from the earlier flashcards app is carried over automatically. The scheduling and storage code has unit tests: `node --test site/js/lib/*.test.mjs`.
 
 To preview locally:
 

@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Build the flashcards site into _site/ for GitHub Pages.
 
-Copies the static app from site/ and generates _site/cards.json from the
-review questions in learning/questions/. The question files remain the single
-source of truth; never edit the generated output.
+Copies the static app from site/ (without its unit tests) and generates
+_site/cards.json from the review questions in learning/questions/. The question
+files remain the single source of truth; never edit the generated output.
+
+Each card records the date its question was first committed (``added``), read
+from Git history. Without full history, for example in a shallow clone, the
+field is left out and the app shows no "New" badges.
 
 Usage:
   python3 scripts/build_flashcards.py
@@ -24,11 +28,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from question_bank import REPO_ROOT, load_questions  # noqa: E402
+from question_bank import ID_PATTERN, QUESTION_DIR, REPO_ROOT, load_questions  # noqa: E402
 
 SITE_SRC = REPO_ROOT / "site"
 OUTPUT = REPO_ROOT / "_site"
+WIKI_DIR = REPO_ROOT / "wiki"
 DEFAULT_REPOSITORY = "GeorgeDanicico/llm-wiki"
+# Files in site/ that are not part of the published app.
+SKIPPED_SITE_FILES = ("*.test.mjs", "package.json")
+ADDED_HEADING_RE = re.compile(rf"^\+## ({ID_PATTERN}) — ", re.MULTILINE)
 
 
 def main() -> int:
@@ -44,6 +52,7 @@ def main() -> int:
     branch = os.environ.get("FLASHCARDS_BRANCH", "main")
     blob_root = f"https://github.com/{repository}/blob/{branch}/"
 
+    added = added_dates()
     topics: dict[str, dict] = {}
     cards = []
     for question in questions:
@@ -51,19 +60,23 @@ def main() -> int:
         topics.setdefault(slug, {"slug": slug, "name": question.topic, "count": 0})["count"] += 1
         source = question.source_path.relative_to(REPO_ROOT).as_posix()
         anchor = f"#{question.source_anchor}" if question.source_anchor else ""
-        cards.append(
-            {
-                "id": question.id,
-                "topic": slug,
-                "question": inline_markdown(question.text),
-                "points": [inline_markdown(point) for point in question.points],
-                "source": {"title": question.source_label, "url": blob_root + source + anchor},
-            }
-        )
+        card = {
+            "id": question.id,
+            "topic": slug,
+            "question": inline_markdown(question.text),
+            "points": [inline_markdown(point) for point in question.points],
+            "source": {"title": question.source_label, "url": blob_root + source + anchor},
+            # The supporting page, such as "reliability/cache-aside", and its heading anchor.
+            "pageSlug": page_slug(question.source_path),
+            "anchor": question.source_anchor,
+        }
+        if question.id in added:
+            card["added"] = added[question.id]
+        cards.append(card)
 
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
-    shutil.copytree(SITE_SRC, OUTPUT)
+    shutil.copytree(SITE_SRC, OUTPUT, ignore=shutil.ignore_patterns(*SKIPPED_SITE_FILES))
     payload = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "repository": f"https://github.com/{repository}",
@@ -90,11 +103,40 @@ def inline_markdown(text: str) -> str:
     return "".join(rendered)
 
 
+def page_slug(path: Path) -> str | None:
+    try:
+        return path.relative_to(WIKI_DIR).with_suffix("").as_posix()
+    except ValueError:
+        return None
+
+
+def added_dates() -> dict[str, str]:
+    """Map each question ID to the date (YYYY-MM-DD) of the commit that first added its heading."""
+    try:
+        if git("rev-parse", "--is-shallow-repository") == "true":
+            return {}
+        log = git(
+            "log", "--reverse", "-p", "--no-color", "--no-ext-diff", "--format=%x00%cI",
+            "--", QUESTION_DIR.relative_to(REPO_ROOT).as_posix() + "/",
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return {}
+    added: dict[str, str] = {}
+    # Each commit starts with NUL, its committer date, then its patch.
+    for commit in log.split("\0")[1:]:
+        date, _, patch = commit.partition("\n")
+        for match in ADDED_HEADING_RE.finditer(patch):
+            added.setdefault(match.group(1), date.strip()[:10])
+    return added
+
+
+def git(*args: str) -> str:
+    return subprocess.run(["git", *args], cwd=REPO_ROOT, check=True, capture_output=True, text=True).stdout.strip()
+
+
 def repository_from_remote() -> str | None:
     try:
-        url = subprocess.run(
-            ["git", "remote", "get-url", "origin"], cwd=REPO_ROOT, check=True, capture_output=True, text=True
-        ).stdout.strip()
+        url = git("remote", "get-url", "origin")
     except (OSError, subprocess.CalledProcessError):
         return None
     match = re.search(r"github\.com[:/](.+?/.+?)(?:\.git)?$", url)

@@ -1,0 +1,5 @@
+{
+  "//": "Only tells Node (for node --test) that site/ uses ES modules. No dependencies; not copied to _site/.",
+  "private": true,
+  "type": "module"
+}
