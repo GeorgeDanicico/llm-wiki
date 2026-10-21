@@ -26,6 +26,8 @@ export const DEFAULT_SETTINGS = {
   // null means every topic.
   practiceTopics: null,
   practiceOrder: "shuffle",
+  // New cards in the daily deck come only from pages marked as learned.
+  onlyLearnedPages: true,
 };
 
 // Inclusive bounds for the numeric settings.
@@ -135,6 +137,7 @@ export function mergeDoc(doc, data, options) {
 
 // Convert the v1 flashcards format, {progress: {<id>: {box, reviews, last}},
 // topics, order}, into rows: one baseline review per card plus settings.
+// Pages are derived afterwards by baselinePages, which needs the cards.
 export function migrateV1(v1, now = new Date()) {
   const reviews = [];
   for (const [card, entry] of Object.entries(v1?.progress ?? {})) {
@@ -160,6 +163,24 @@ export function migrateV1(v1, now = new Date()) {
   return { reviews, pages: [], settings };
 }
 
+// Pages to mark learned because their cards have baseline rows (progress
+// carried over from the v1 flashcards), so that progress keeps feeding the
+// daily deck. `pageOf(cardId)` returns a page path or null. A page that already
+// has a record, learned or not, is left alone, so this runs once per page. The
+// row's `at` is the page's earliest baseline, so every device derives the same
+// row.
+export function baselinePages(doc, pageOf) {
+  const earliest = new Map();
+  for (const row of Object.values(doc.reviews)) {
+    if (row.mode !== "baseline") continue;
+    const path = pageOf(row.card);
+    if (!path || doc.pages[path]) continue;
+    const current = earliest.get(path);
+    if (!current || isNewer(current, row)) earliest.set(path, row);
+  }
+  return [...earliest].map(([path, row]) => ({ path, learned: 1, at: row.at }));
+}
+
 // --- Storage (best effort: private windows may block it) ------------------------
 
 function defaultStorage() {
@@ -179,8 +200,10 @@ function readJson(storage, key) {
   }
 }
 
-// Create the store. `storage` and `now` are injectable for tests.
-export function createStore({ storage = defaultStorage(), now = () => new Date() } = {}) {
+// Create the store. `storage` and `now` are injectable for tests. `pageOf`
+// maps a card ID to its wiki page path; when given, pages of cards with
+// baseline rows are marked learned on load and after an import.
+export function createStore({ storage = defaultStorage(), now = () => new Date(), pageOf = null } = {}) {
   let doc = emptyDoc();
   let persistent = Boolean(storage);
   let migrated = false;
@@ -228,9 +251,24 @@ export function createStore({ storage = defaultStorage(), now = () => new Date()
     }
   }
 
+  // Returns the number of pages marked learned.
+  function learnBaselinePages() {
+    if (!pageOf) return 0;
+    const rows = baselinePages(doc, pageOf);
+    if (!rows.length) return 0;
+    mergeRows(doc, "pages", rows, { queue: true });
+    save();
+    return rows.length;
+  }
+  const baselinePagesLearned = learnBaselinePages();
+
   return {
     get persistent() {
       return persistent;
+    },
+    // Pages marked learned on load because their cards had baseline rows.
+    get baselinePagesLearned() {
+      return baselinePagesLearned;
     },
     get migrated() {
       return migrated;
@@ -289,6 +327,7 @@ export function createStore({ storage = defaultStorage(), now = () => new Date()
       }
       if (key === "practiceTopics") return Array.isArray(value) ? value : fallback;
       if (key === "practiceOrder") return value === "weakest" ? "weakest" : "shuffle";
+      if (key === "onlyLearnedPages") return typeof value === "boolean" ? value : fallback;
       return value;
     },
     settings() {
@@ -342,6 +381,7 @@ export function createStore({ storage = defaultStorage(), now = () => new Date()
       const rows = data && typeof data === "object" && "progress" in data ? migrateV1(data, now()) : data;
       const result = mergeDoc(doc, rows, { queue: true });
       save();
+      learnBaselinePages();
       return result;
     },
 
