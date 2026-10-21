@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { localDay, localIso } from "./schedule.js";
-import { STORAGE_KEY, V1_KEY, createStore, emptyDoc, mergeRows, migrateV1 } from "./store.js";
+import { STORAGE_KEY, V1_KEY, baselinePages, createStore, emptyDoc, mergeRows, migrateV1 } from "./store.js";
 
 // In-memory stand-in for localStorage.
 function memoryStorage(initial = {}) {
@@ -170,4 +170,70 @@ test("reset empties progress without bringing back v1 data", () => {
   const storage = memoryStorage({ [V1_KEY]: JSON.stringify({ progress: { "REL-CA-002": { box: 1, last: "2026-10-04T18:30:00.000Z" } } }) });
   createStore({ storage }).reset();
   assert.equal(createStore({ storage }).reviews().length, 0);
+});
+
+// --- Pages learned from baselines --------------------------------------------------
+
+const PAGES = { "REL-CA-002": "wiki/reliability/cache-aside.md", "REL-CA-003": "wiki/reliability/cache-aside.md", "DATA-OL-001": "wiki/data-access/optimistic-locking.md" };
+const pageOf = (id) => PAGES[id] ?? null;
+
+test("v1 migration marks the pages of migrated cards as learned", () => {
+  const v1 = JSON.stringify({
+    progress: {
+      "REL-CA-002": { box: 3, reviews: 4, last: "2026-10-04T18:30:00.000Z" },
+      "REL-CA-003": { box: 1, reviews: 1, last: "2026-10-02T08:00:00.000Z" },
+      "UNKNOWN-001": { box: 1, reviews: 1, last: "2026-10-02T08:00:00.000Z" },
+    },
+  });
+  const storage = memoryStorage({ [V1_KEY]: v1 });
+  const store = createStore({ storage, now: () => new Date("2026-10-21T12:00:00Z"), pageOf });
+  assert.equal(store.baselinePagesLearned, 1);
+  const learned = store.page("wiki/reliability/cache-aside.md");
+  assert.equal(learned.learned, 1);
+  // The earliest baseline of the page's cards dates the record.
+  assert.equal(learned.at, localIso(new Date("2026-10-02T08:00:00.000Z")));
+  assert.deepEqual(store.outboxRows().pages.map((row) => row.path), ["wiki/reliability/cache-aside.md"]);
+});
+
+test("stores migrated before the learn panel get their pages once, on load", () => {
+  const doc = emptyDoc();
+  mergeRows(doc, "reviews", migrateV1({ progress: { "DATA-OL-001": { box: 2, last: "2026-10-03T08:00:00.000Z" } } }).reviews);
+  const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) });
+  const store = createStore({ storage, pageOf });
+  assert.equal(store.baselinePagesLearned, 1);
+  assert.equal(store.page("wiki/data-access/optimistic-locking.md").learned, 1);
+
+  // Idempotent: the next load finds the record and adds nothing.
+  assert.equal(createStore({ storage, pageOf }).baselinePagesLearned, 0);
+  // A page the user marked as not learned stays that way.
+  store.setPage("wiki/data-access/optimistic-locking.md", false);
+  const again = createStore({ storage, pageOf });
+  assert.equal(again.baselinePagesLearned, 0);
+  assert.equal(again.page("wiki/data-access/optimistic-locking.md").learned, 0);
+});
+
+test("baselinePages ignores other modes, unknown cards, and pages with records", () => {
+  const doc = emptyDoc();
+  mergeRows(doc, "reviews", [
+    { id: "s:REL-CA-002", card: "REL-CA-002", at: "2026-10-01T08:00:00.000+00:00", day: "2026-10-01", mode: "daily", knew: 1 },
+    { id: "baseline:UNKNOWN-001", card: "UNKNOWN-001", at: "2026-10-01T08:00:00.000+00:00", day: "2026-10-01", mode: "baseline", box: 1 },
+    { id: "baseline:DATA-OL-001", card: "DATA-OL-001", at: "2026-10-01T08:00:00.000+00:00", day: "2026-10-01", mode: "baseline", box: 1 },
+  ]);
+  mergeRows(doc, "pages", [{ path: "wiki/data-access/optimistic-locking.md", learned: 0, at: "2026-10-05T08:00:00.000+00:00" }]);
+  assert.deepEqual(baselinePages(doc, pageOf), []);
+});
+
+test("importing v1 data marks its pages learned", () => {
+  const store = createStore({ storage: memoryStorage(), pageOf });
+  store.importData({ progress: { "REL-CA-002": { box: 2, last: "2026-10-04T18:30:00.000Z" } } });
+  assert.equal(store.page("wiki/reliability/cache-aside.md").learned, 1);
+});
+
+test("onlyLearnedPages defaults to on and only accepts booleans", () => {
+  const store = createStore({ storage: memoryStorage() });
+  assert.equal(store.setting("onlyLearnedPages"), true);
+  store.setSetting("onlyLearnedPages", false);
+  assert.equal(store.setting("onlyLearnedPages"), false);
+  store.setSetting("onlyLearnedPages", "no");
+  assert.equal(store.setting("onlyLearnedPages"), true);
 });

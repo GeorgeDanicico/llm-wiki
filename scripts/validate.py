@@ -7,6 +7,8 @@ Checks:
   3. Every review question is well-formed, has a unique stable ID, and cites
      an existing wiki page.
   4. With --base REF: captured sources were not modified or deleted since REF.
+  5. Every page under wiki/ renders with the study site's strict Markdown
+     renderer (scripts/wiki_markdown.py), so it uses only supported syntax.
 
 Usage:
   python3 scripts/validate.py
@@ -22,17 +24,15 @@ import re
 import subprocess
 import sys
 from collections import defaultdict
-from functools import cache
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from question_bank import QUESTION_INDEX, REPO_ROOT, load_questions, question_files  # noqa: E402
+from wiki_markdown import FENCE_RE, UnsupportedMarkdown, heading_anchors, render_file  # noqa: E402
 
 SKIPPED_DIRS = {".git", ".github", "_site", "node_modules"}
 EXTERNAL_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.IGNORECASE)
-FENCE_RE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
-HEADING_RE = re.compile(r"^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$")
 INLINE_CODE_RE = re.compile(r"(`+)(.+?)\1")
 LINK_RE = re.compile(r"!?\[(?:[^\[\]]|\[[^\]]*\])*\]\(\s*<?([^)\s>]*)>?(?:\s+\"[^\"]*\")?\s*\)")
 
@@ -50,6 +50,7 @@ def main() -> int:
     question_count = check_questions(errors["Review questions"])
     if args.base:
         check_source_immutability(args.base, errors["Modified captured sources"])
+    page_count = check_rendering(files, errors["Wiki pages that do not render"])
 
     problems = {title: items for title, items in errors.items() if items}
     for title, items in problems.items():
@@ -57,7 +58,10 @@ def main() -> int:
         for item in items:
             print(f"  - {item}")
 
-    summary = f"{len(files)} Markdown files, {link_count} local links, {question_count} review questions"
+    summary = (
+        f"{len(files)} Markdown files, {link_count} local links, {question_count} review questions, "
+        f"{page_count} rendered wiki pages"
+    )
     if problems:
         print(f"\nValidation failed: {sum(map(len, problems.values()))} problem(s) across {summary}.")
         return 1
@@ -125,40 +129,6 @@ def check_link_target(source: Path, target: str) -> str | None:
         if anchor not in heading_anchors(destination):
             return f"no heading with anchor #{anchor} in {rel(destination)}"
     return None
-
-
-@cache
-def heading_anchors(path: Path) -> frozenset[str]:
-    """Anchors GitHub generates for the headings in ``path``."""
-    anchors: set[str] = set()
-    seen: dict[str, int] = defaultdict(int)
-    in_fence = None
-    for line in path.read_text(encoding="utf-8").splitlines():
-        fence = FENCE_RE.match(line)
-        if fence:
-            marker = fence.group(1)
-            if in_fence is None:
-                in_fence = marker[0] * len(marker)
-            elif marker.startswith(in_fence):
-                in_fence = None
-            continue
-        if in_fence:
-            continue
-        heading = HEADING_RE.match(line)
-        if not heading:
-            continue
-        slug = github_slug(heading.group(2))
-        anchors.add(slug if seen[slug] == 0 else f"{slug}-{seen[slug]}")
-        seen[slug] += 1
-    return frozenset(anchors)
-
-
-def github_slug(heading: str) -> str:
-    text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", heading)  # links -> link text
-    text = re.sub(r"<[^>]+>", "", text)  # inline HTML
-    text = text.lower()
-    text = re.sub(r"[^\w\- ]", "", text)
-    return text.replace(" ", "-")
 
 
 # --- 2. Index coverage ------------------------------------------------------
@@ -235,6 +205,23 @@ def check_source_immutability(base: str, errors: list[str]) -> None:
             continue
         verb = {"M": "modified", "D": "deleted", "R": "renamed"}.get(status[0], f"changed ({status})")
         errors.append(f"{' -> '.join(paths)} was {verb}; captured sources are immutable — add a new capture instead")
+
+
+# --- 5. Rendering -----------------------------------------------------------
+
+
+def check_rendering(files: list[Path], errors: list[str]) -> int:
+    wiki = REPO_ROOT / "wiki"
+    pages = [path for path in files if path.is_relative_to(wiki)]
+    for path in pages:
+        try:
+            render_file(path)
+        except UnsupportedMarkdown as error:
+            errors.append(
+                f"{rel(path)}:{error.line}: {error.construct} — the study site's renderer "
+                "(scripts/wiki_markdown.py) does not support this; rewrite it or extend the renderer"
+            )
+    return len(pages)
 
 
 def git(*args: str) -> str:

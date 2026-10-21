@@ -97,9 +97,31 @@ export function isRecentlyAdded(card, today) {
 
 // --- Today's deck -------------------------------------------------------------
 
-// The deck depends only on rows from before `today`, so it stays the same all
-// day and on every device. `canBeNew(card)` gates new cards; until the learn
-// panel exists, every card counts as being on a learned page.
+// The wiki page a card belongs to, such as "wiki/reliability/cache-aside.md".
+export function pagePath(card) {
+  return card?.pageSlug ? `wiki/${card.pageSlug}.md` : null;
+}
+
+// A `canBeNew(card, day)` gate: a card can be new on `day` only when its page
+// was marked learned on or before that day. With `enabled` false (the
+// onlyLearnedPages setting turned off), every card can be new.
+export function learnedPageGate(pages, { enabled = true } = {}) {
+  if (!enabled) return () => true;
+  const learnedOn = new Map();
+  for (const row of pages) {
+    // `at` is local ISO 8601, so its first ten characters are the local day.
+    if (row.learned === 1) learnedOn.set(row.path, row.at.slice(0, 10));
+  }
+  return (card, day) => {
+    const on = learnedOn.get(pagePath(card));
+    return on !== undefined && (!day || on <= day);
+  };
+}
+
+// The deck depends only on rows from before `today` (and on which pages are
+// learned), so it stays the same through the day and on every device.
+// `canBeNew(card, today)` gates new cards; see learnedPageGate. By default every
+// card can be new.
 export function buildDeck({ cards, reviews, today, settings = {}, canBeNew = () => true }) {
   const { dailySize = 12, newPerDay = 4 } = settings;
   const states = cardStates(reviews, { before: today });
@@ -118,7 +140,7 @@ export function buildDeck({ cards, reviews, today, settings = {}, canBeNew = () 
     .filter((card) => states.has(card.id) && states.get(card.id).due <= today)
     .sort((a, b) => states.get(a.id).due.localeCompare(states.get(b.id).due) || byRank(a, b));
   const fresh = cards
-    .filter((card) => !states.has(card.id) && !learnedToday.has(card.id) && canBeNew(card))
+    .filter((card) => !states.has(card.id) && !learnedToday.has(card.id) && canBeNew(card, today))
     .sort((a, b) => isRecentlyAdded(b, today) - isRecentlyAdded(a, today) || byRank(a, b))
     .slice(0, Math.max(0, newPerDay));
 

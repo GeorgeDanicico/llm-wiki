@@ -9,9 +9,11 @@ import {
   cardStates,
   dayCounts,
   deckProgress,
+  learnedPageGate,
   localDay,
   localIso,
   metDays,
+  pagePath,
   streak,
   weekday,
 } from "./schedule.js";
@@ -223,4 +225,65 @@ test("activity covers 12 whole weeks ending today", () => {
   assert.equal(days.at(-1).day, "2026-10-21");
   assert.equal(days.at(-1).count, 5);
   assert.equal(days.length, 7 * 11 + 3);
+});
+
+// --- Learned-page gating ---------------------------------------------------------
+
+const pageCards = [
+  { id: "A-001", topic: "t", pageSlug: "t/alpha" },
+  { id: "A-002", topic: "t", pageSlug: "t/alpha" },
+  { id: "B-001", topic: "t", pageSlug: "t/beta" },
+  { id: "B-002", topic: "t", pageSlug: "t/beta" },
+];
+const page = (path, learned, at) => ({ path, learned, at });
+
+test("pagePath maps a card to its wiki page", () => {
+  assert.equal(pagePath(pageCards[0]), "wiki/t/alpha.md");
+  assert.equal(pagePath({ id: "X-001" }), null);
+});
+
+test("only cards on learned pages can be new", () => {
+  const today = "2026-10-21";
+  const gate = learnedPageGate([page("wiki/t/alpha.md", 1, "2026-10-20T09:00:00.000+02:00")]);
+  const deck = buildDeck({ cards: pageCards, reviews: [], today, settings: { newPerDay: 10 }, canBeNew: gate });
+  assert.deepEqual(deck.cards.map((card) => card.id).sort(), ["A-001", "A-002"]);
+});
+
+test("pages marked not learned, or never marked, give no new cards", () => {
+  const gate = learnedPageGate([page("wiki/t/alpha.md", 0, "2026-10-20T09:00:00.000+00:00")]);
+  const deck = buildDeck({ cards: pageCards, reviews: [], today: "2026-10-21", canBeNew: gate });
+  assert.equal(deck.cards.length, 0);
+});
+
+test("gating never hides due cards", () => {
+  const reviews = [row("B-001", "2026-10-01", "daily", 1)];
+  const deck = buildDeck({ cards: pageCards, reviews, today: "2026-10-21", canBeNew: learnedPageGate([]) });
+  assert.deepEqual(deck.cards.map((card) => card.id), ["B-001"]);
+});
+
+test("a page learned today adds its cards to today's deck, except those graded while learning", () => {
+  const today = "2026-10-21";
+  const pages = [page("wiki/t/beta.md", 1, `${today}T10:00:00.000+00:00`)];
+  const reviews = [row("B-001", today, "learn", 1)];
+  const deck = buildDeck({ cards: pageCards, reviews, today, canBeNew: learnedPageGate(pages) });
+  assert.deepEqual(deck.cards.map((card) => card.id), ["B-002"]);
+});
+
+test("the gate is applied per day: a page learned later gives no new cards on earlier days", () => {
+  const gate = learnedPageGate([page("wiki/t/alpha.md", 1, "2026-10-21T08:00:00.000+00:00")]);
+  assert.equal(gate(pageCards[0], "2026-10-20"), false);
+  assert.equal(gate(pageCards[0], "2026-10-21"), true);
+  assert.equal(gate(pageCards[0]), true);
+  // metDays builds past decks with the same gate, so a past day's deck has no
+  // cards from pages learned after it.
+  const day = "2026-10-20";
+  const reviews = [row("A-001", day, "daily", 1)];
+  const met = metDays({ cards: pageCards, reviews, today: "2026-10-21", settings: { dailyGoal: 5 }, canBeNew: gate });
+  assert.equal(met.has(day), false);
+});
+
+test("with onlyLearnedPages off, every card can be new", () => {
+  const gate = learnedPageGate([], { enabled: false });
+  const deck = buildDeck({ cards: pageCards, reviews: [], today: "2026-10-21", settings: { newPerDay: 10 }, canBeNew: gate });
+  assert.equal(deck.cards.length, 4);
 });

@@ -21,13 +21,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate links, indexes, questions, and source immutability
+      - name: Validate links, indexes, questions, rendering, and source immutability
         if: github.event_name == 'pull_request'
         run: python scripts/validate.py --base "origin/${{ github.base_ref }}"
 
-      - name: Validate links, indexes, and questions
+      - name: Validate links, indexes, questions, and rendering
         if: github.event_name != 'pull_request'
         run: python scripts/validate.py
+
+      - name: Unit-test the Markdown renderer and the Learn build
+        run: python -m unittest discover -s tests
 
       - name: Unit-test the study site's scheduling and storage
         run: node --test site/js/lib/*.test.mjs

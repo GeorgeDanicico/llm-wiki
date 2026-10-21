@@ -4,12 +4,12 @@
 
 In write-through caching every write goes through the cache layer. The cache layer writes to the database synchronously, stores the value in the cache only after the database confirms, and then acknowledges the client. After a successful write the cache and the database hold the same value, so reads of that key are fresh without an invalidation step. [Source](../../sources/notes/reliability/write-through-caching-learning-session.md#key-ideas)
 
-`	ext
+```text
 Client --write(k,v)--> Cache layer --1. write v--> Database
                            |<-------2. ack--------------|
                            | 3. store k=v in cache
 Client <-----4. ack--------|
-`
+```
 
 The order is database first, cache second. If the database write fails, the cache must not keep the new value. The session noted that caching the value first and retrying the database write later is possible but complex; that is the direction of asynchronous persistence, which the catalog covers separately as write-behind. [Source](../../sources/notes/reliability/write-through-caching-learning-session.md#your-check-in-answers)
 
@@ -35,13 +35,13 @@ The second session refined the latency comparison with [cache-aside](cache-aside
 
 [Source](../../sources/notes/reliability/write-through-caching-learning-session.md#worked-example)
 
-`java
+```java
 public Product save(Product p) {
     Product saved = repository.save(p);        // step 1: DB, synchronous
     cache.put("product:" + saved.id(), saved); // step 2: cache
     return saved;
 }
-`
+```
 
 | Step | Thread A (price=10) | Thread B (price=12) |
 | --- | --- | --- |
