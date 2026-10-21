@@ -1,0 +1,20 @@
+# The study site and progress server. Deployed by vps-apps, which overrides
+# ports, env_file, and volumes for the host (deploy/compose/llm-wiki.yml).
+#
+# Host setup: /etc/llm-wiki/study.env holds PROGRESS_TOKEN_HASHES, and
+# /var/lib/llm-wiki (the database and daily snapshots) is owned by uid 10001.
+services:
+  study:
+    build: .
+    image: llm-wiki-study
+    restart: unless-stopped
+    env_file: [/etc/llm-wiki/study.env]
+    environment:
+      PROGRESS_TRUST_PROXY: "1"
+    volumes:
+      - /var/lib/llm-wiki:/data
+    ports:
+      - "127.0.0.1:3002:8000"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
