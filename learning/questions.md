@@ -11,6 +11,7 @@ Active-recall prompts covering recall, explanation, comparison, application, and
 - [Reliability and operations](questions/reliability.md)
 - [Distributed systems](questions/distributed-systems.md)
 - [Infrastructure](questions/infrastructure.md)
+- [Architecture](questions/architecture.md)
 
 ## Adding questions
 

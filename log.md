@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-22 — Dependency inversion learning session ingestion
+
+- Preserved the learning-session summary for topic 003 (dependency inversion) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.
+- Created the Architecture topic area with a focused [Dependency inversion](wiki/architecture/dependency-inversion.md) page (business-owned port, package-ownership rule, before-and-after Java example, leaky ports, reporting-query scenario, inversion versus injection) and a library-note entry.
+- Updated architecture, library-note, source-category, source-catalog, and root indexes; registered four review questions (ARCH-DI-001 through ARCH-DI-004), which feed the flashcards.
+- No documentation was fetched during the session; the hexagonal-architecture, Spring, and reading-list remarks are marked unverified. No conflicting wiki claims were identified.
+
 ## 2026-10-21 — Study site: progress server, sync, and installable app
 
 - Added `server/progress_server.py` (Python standard library): it serves the built site and stores reviews, learned pages, and settings in SQLite with a global change counter. `POST /api/sync` pushes and pulls in one call with the merge rule (newer instant wins, ties keep the existing row); `GET /api/export` returns every row; `GET /api/health` needs no token. Device tokens are checked against SHA-256 hashes, failed attempts are rate-limited per IP, every response carries a strict Content-Security-Policy, and a daily `VACUUM INTO` snapshot is kept for 30 days.

@@ -11,6 +11,7 @@ This index is the entry point for the compiled knowledge base. Source material i
 - [Reliability and operations](reliability/index.md) — latency distributions, cache-aside, read-through, and write-through caching, cache-stampede protection, HTTP client timeouts, graceful degradation, downstream resilience, observability, health probes, and incident reasoning.
 - [Distributed systems](distributed-systems/index.md) — system-design fundamentals, event time, stream processing, Kafka durability, SAGA coordination, payment idempotency, payment workflows, and fault tolerance.
 - [Infrastructure](infrastructure/index.md) — DNS, network traffic control, and container image construction.
+- [Architecture](architecture/index.md) — dependency inversion, ports, and adapters.
 - [Interview preparation](interview-preparation/index.md) — cross-topic review guides and high-value distinctions.
 
 ## Library

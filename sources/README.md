@@ -16,10 +16,11 @@ The initial collection was imported on 2026-08-11 from the local `gd/Notes` repo
 
 ## Later captures
 
-Data-access notes are cataloged in the [data-access source index](notes/data-access/README.md). Reliability and cache-resilience notes are cataloged in the [reliability source index](notes/reliability/README.md). Language-model notes are cataloged in the [language-model source index](notes/language-models/README.md). Distributed-systems notes are cataloged in the [distributed-systems source index](notes/distributed-systems/README.md).
+Data-access notes are cataloged in the [data-access source index](notes/data-access/README.md). Reliability and cache-resilience notes are cataloged in the [reliability source index](notes/reliability/README.md). Language-model notes are cataloged in the [language-model source index](notes/language-models/README.md). Distributed-systems notes are cataloged in the [distributed-systems source index](notes/distributed-systems/README.md). Architecture notes are cataloged in the [architecture source index](notes/architecture/README.md).
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/architecture/dependency-inversion-learning-session.md`](notes/architecture/dependency-inversion-learning-session.md) | User-supplied learning-session summary | 2026-10-22 | [Library entry](../wiki/library/notes/dependency-inversion.md), [Dependency inversion](../wiki/architecture/dependency-inversion.md) |
 | [`notes/reliability/write-through-caching-transactional-learning-session.md`](notes/reliability/write-through-caching-transactional-learning-session.md) | User-supplied learning-session summary | 2026-10-20 | [Library entry](../wiki/library/notes/write-through-caching-transactional.md), [Write-through caching](../wiki/reliability/write-through-caching.md) |
 | [`notes/reliability/connection-vs-request-timeouts-learning-session.md`](notes/reliability/connection-vs-request-timeouts-learning-session.md) | User-supplied learning-session summary | 2026-10-08 | [Library entry](../wiki/library/notes/connection-vs-request-timeouts.md), [Connection versus request timeouts](../wiki/reliability/connection-versus-request-timeouts.md) |
 | [`notes/reliability/write-through-caching-learning-session.md`](notes/reliability/write-through-caching-learning-session.md) | User-supplied learning-session summary | 2026-10-10 | [Library entry](../wiki/library/notes/write-through-caching.md), [Write-through caching](../wiki/reliability/write-through-caching.md) |
