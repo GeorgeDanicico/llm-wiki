@@ -1,5 +1,6 @@
 # Notes
 
+- [004. Dependency injection — learning session](dependency-injection.md) — user-supplied learning-session summary covering constructor injection versus constructing inside a class, injection styles, and over-long constructors.
 - [003. Dependency inversion — learning session](dependency-inversion.md) — user-supplied learning-session summary covering business-owned ports, infrastructure adapters, leaky ports, and the distinction from dependency injection.
 - [System Design Fundamentals](system-design-fundamentals.md) — user-supplied technical note about reliability, CAP, service state, partitioning, replication, and consistency models.
 - [Graceful Degradation Practices](graceful-degradation-practices.md) — user-supplied note covering overload controls, retry behavior, timeouts, and observability.
