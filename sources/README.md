@@ -20,6 +20,7 @@ Data-access notes are cataloged in the [data-access source index](notes/data-acc
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/architecture/dependency-injection-learning-session.md`](notes/architecture/dependency-injection-learning-session.md) | User-supplied learning-session summary | 2026-10-22 | [Library entry](../wiki/library/notes/dependency-injection.md), [Dependency injection](../wiki/architecture/dependency-injection.md) |
 | [`notes/architecture/dependency-inversion-learning-session.md`](notes/architecture/dependency-inversion-learning-session.md) | User-supplied learning-session summary | 2026-10-22 | [Library entry](../wiki/library/notes/dependency-inversion.md), [Dependency inversion](../wiki/architecture/dependency-inversion.md) |
 | [`notes/reliability/write-through-caching-transactional-learning-session.md`](notes/reliability/write-through-caching-transactional-learning-session.md) | User-supplied learning-session summary | 2026-10-20 | [Library entry](../wiki/library/notes/write-through-caching-transactional.md), [Write-through caching](../wiki/reliability/write-through-caching.md) |
 | [`notes/reliability/connection-vs-request-timeouts-learning-session.md`](notes/reliability/connection-vs-request-timeouts-learning-session.md) | User-supplied learning-session summary | 2026-10-08 | [Library entry](../wiki/library/notes/connection-vs-request-timeouts.md), [Connection versus request timeouts](../wiki/reliability/connection-versus-request-timeouts.md) |

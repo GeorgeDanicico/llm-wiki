@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-22 — Dependency injection learning session ingestion
+
+- Preserved the learning-session summary for topic 004 (dependency injection) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.
+- Added a focused [Dependency injection](wiki/architecture/dependency-injection.md) page (construction inside a class versus injection, inversion versus injection, constructor versus setter and field injection, a framework-free unit-test example, over-long constructors, circular dependencies, injecting non-obvious sources) and a library-note entry.
+- Updated architecture, library-note, source-category, source-catalog, and root indexes; registered four review questions (ARCH-INJ-001 through ARCH-INJ-004), which feed the flashcards.
+- No documentation was fetched during the session; the Spring remarks, the static-mocking remark, and the reading list are marked unverified. No conflicting wiki claims were identified.
+
 ## 2026-10-22 — Dependency inversion learning session ingestion
 
 - Preserved the learning-session summary for topic 003 (dependency inversion) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.
