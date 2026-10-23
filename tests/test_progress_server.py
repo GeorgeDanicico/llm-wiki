@@ -10,7 +10,9 @@ import hashlib
 import http.client
 import json
 import os
+import secrets
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import threading
@@ -148,6 +150,28 @@ class HealthAndAuthTest(ServerTest):
             with self.assertRaises(ValueError) as caught:
                 ps.parse_token_hashes(bad)
             self.assertNotIn(PHONE, str(caught.exception))
+
+    def test_raw_token_entry_is_named(self):
+        token = secrets.token_urlsafe(32)
+        with self.assertRaises(ValueError) as caught:
+            ps.parse_token_hashes(f"phone:{digest(PHONE)},laptop:{token}")
+        message = str(caught.exception)
+        self.assertIn("entry 2 ('laptop') holds a raw token", message)
+        self.assertNotIn(token, message)
+        self.assertNotIn(token.lower(), message)
+
+    def test_new_device_token_script(self):
+        script = REPO_ROOT / "scripts" / "new_device_token.py"
+        output = subprocess.run([sys.executable, script, "tablet"], capture_output=True, text=True, check=True).stdout
+        token = output.splitlines()[1].strip()
+        line = output.splitlines()[3].strip()
+        self.assertEqual(line, f"tablet:{digest(token)}")
+        self.assertEqual(ps.parse_token_hashes(line), {"tablet": digest(token)})
+        hashed = subprocess.run([sys.executable, script, "--hash-only", "tablet"], input=f"{token}\n",
+                                capture_output=True, text=True, check=True).stdout
+        self.assertEqual(hashed.strip(), line)
+        rejected = subprocess.run([sys.executable, script, "bad name"], capture_output=True, text=True)
+        self.assertNotEqual(rejected.returncode, 0)
 
 
 class TrustedProxyTest(ServerTest):

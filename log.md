@@ -1,5 +1,11 @@
 # Wiki Log
 
+## 2026-10-23 — Study site: device token helper and clearer token error
+
+- Raw device tokens stored in `PROGRESS_TOKEN_HASHES` instead of their hashes made the progress server exit at start, so the container restarted in a loop and every VPS deploy failed on llm-wiki. The server's error now names the entry and device and says it holds a raw token, without echoing the value.
+- Added `scripts/new_device_token.py`, which creates a token and prints the `name:sha256hex` entry to store, or hashes an existing token from stdin with `--hash-only`. `README.md` and the server's docstring now point to it. No knowledge content changed.
+- Validation: `python3 scripts/validate.py --base origin/main` and `python3 -m unittest discover -s tests`.
+
 ## 2026-10-22 — Dependency injection learning session ingestion
 
 - Preserved the learning-session summary for topic 004 (dependency injection) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.

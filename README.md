@@ -55,12 +55,13 @@ Scheduling uses Leitner boxes with intervals of 1, 2, 4, 8, 16, and 32 days, der
 - **Sync.** Each device keeps working in its own browser storage and syncs with the server when it has a device token: on start, when it comes back to the foreground or online, a few seconds after a grade, and every five minutes. The header shows **Synced**, **Saving…**, **Offline · N pending**, or **Disconnected**. Paste a token once under **Settings → Sync across devices**; connecting uploads the device's existing progress, and the merge rule (newer timestamp wins) makes that safe. Phone and laptop then share one review log, schedule, and streak.
 - **GitHub Pages (local-only fallback).** The **Deploy flashcards** workflow still publishes the same site to [GitHub Pages](https://georgedanicico.github.io/llm-wiki/). There is no server there, so progress stays in that browser; move it with **Export** and **Import**.
 
-Device tokens are random strings; the server stores only their SHA-256 hashes, in `PROGRESS_TOKEN_HASHES=<device>:<hex>,…` in `/etc/llm-wiki/study.env`. To add a device, create a token and record its hash:
+Device tokens are random strings; the server stores only their SHA-256 hashes, in `PROGRESS_TOKEN_HASHES=<device>:<hex>,…` in `/etc/llm-wiki/study.env`. To add a device, create a token and its entry:
 
 ```bash
-python3 -c "import secrets; print(secrets.token_urlsafe(32))"
-printf %s '<token>' | sha256sum
+python3 scripts/new_device_token.py phone
 ```
+
+It prints the token, which you paste into the device, and the `phone:<hex>` entry, which you add to `PROGRESS_TOKEN_HASHES`. Never store the token itself: the server then refuses to start (the container restarts in a loop and the deploy fails), and its error names the entry. To convert a token that was stored by mistake, pipe it in: `printf %s '<token>' | python3 scripts/new_device_token.py --hash-only phone`.
 
 To revoke a device, remove its entry and redeploy or restart the container; that device then shows **Disconnected** and keeps its local progress. `GET /api/export` (with a token) returns every stored row in the app's import format. Server settings are documented at the top of [`server/progress_server.py`](server/progress_server.py).
 
