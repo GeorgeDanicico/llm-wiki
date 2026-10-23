@@ -24,10 +24,11 @@ Configuration (environment variables):
   SITE_DIR               /app/_site          static files
   PORT                   8000                listen port
 
-Create a device token with
-  python3 -c "import secrets; print(secrets.token_urlsafe(32))"
-and store only its hash:
-  printf %s '<token>' | sha256sum
+Create a device token and the line to store with
+  python3 scripts/new_device_token.py NAME
+It prints the token (paste it into the device) and NAME:sha256hex (add it to
+PROGRESS_TOKEN_HASHES). Never store the token itself; the server refuses to
+start when an entry is not a hash.
 
 Tokens are never logged and never stored. The access log records the method,
 path, status, and device name.
@@ -68,6 +69,8 @@ CARD_RE = re.compile(rf"^{ID_PATTERN}$")
 DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 NAME_RE = re.compile(r"^[A-Za-z0-9_.-]{1,40}$")
 HASH_RE = re.compile(r"^[0-9a-f]{64}$")
+# What secrets.token_urlsafe produces (32 bytes → 43 characters); lowercased, as the digest is.
+RAW_TOKEN_RE = re.compile(r"^[a-z0-9_-]{20,}$")
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,80}$")
 SNAPSHOT_RE = re.compile(r"^progress-\d{4}-\d{2}-\d{2}\.db$")
 MODES = ("daily", "learn", "practice", "baseline")
@@ -169,6 +172,12 @@ def parse_token_hashes(text: str) -> dict[str, str]:
     for number, entry in enumerate(filter(None, (part.strip() for part in text.split(","))), 1):
         name, _, digest = entry.partition(":")
         digest = digest.strip().lower()
+        if NAME_RE.match(name.strip()) and RAW_TOKEN_RE.match(digest) and not HASH_RE.match(digest):
+            # Name the device but never echo the value: it is a secret.
+            raise ValueError(
+                f"PROGRESS_TOKEN_HASHES entry {number} ({name.strip()!r}) holds a raw token, not its hash; "
+                "store name:sha256(token) instead (python3 scripts/new_device_token.py --hash-only NAME)"
+            )
         if not NAME_RE.match(name.strip()) or not HASH_RE.match(digest):
             # Never echo the entry: it might be a pasted token rather than a hash.
             raise ValueError(f"PROGRESS_TOKEN_HASHES entry {number} is not name:<64 hex digits>")
