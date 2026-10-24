@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-10-24 — Concurrency limits learning session ingestion
+
+- Preserved the learning-session summary for topic 137 (concurrency limits) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Concurrency limits](wiki/reliability/concurrency-limits.md) page (in-flight versus arrival limits and Little's Law, choosing the limit from the scarcest resource, bounded waits with 503 and `Retry-After`, a `Semaphore` permit-leak example, per-instance limits against a shared database budget, static versus adaptive limits), a library-note entry, and a cross-link from the resilience controls section.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered four review questions (REL-CL-001 through REL-CL-004), which feed the flashcards.
+- No documentation was fetched during the session; the Netflix and Resilience4j remarks and the reading list are marked unverified. The per-instance scaling point agrees with the existing claim that autoscaling is not a bulkhead; no conflicting wiki claims were identified.
+
 ## 2026-10-22 — Dependency injection learning session ingestion
 
 - Preserved the learning-session summary for topic 004 (dependency injection) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.

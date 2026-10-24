@@ -2,6 +2,7 @@
 
 Immutable source material about service reliability, caching, and downstream protection.
 
+- [137. Concurrency limits — learning session](concurrency-limits-learning-session.md) — user-supplied learning-session summary about bounding in-flight work, choosing the limit, handling the request over the limit, permit leaks, and per-instance limits; captured on 2026-10-24.
 - [103. Write-through caching — second learning session](write-through-caching-transactional-learning-session.md) — user-supplied learning-session summary about write latency compared with cache-aside, the read-through pairing, a cache written before the transaction commits, bypassing writers, and write-heavy fit; captured on 2026-10-20.
 - [103. Write-through caching — learning session](write-through-caching-learning-session.md) — user-supplied learning-session summary about the synchronous write path, write latency, consistency assumptions, concurrent-writer staleness, and bypassing writers; captured on 2026-10-10.
 - [121. Connection versus request timeouts — learning session](connection-vs-request-timeouts-learning-session.md) — user-supplied learning-session summary about pool-acquisition, connect, read, and overall HTTP client timeouts and which wait each bounds; captured on 2026-10-08.
