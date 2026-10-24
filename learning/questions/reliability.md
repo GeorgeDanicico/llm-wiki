@@ -405,3 +405,47 @@ Expected points:
 - Invalidate the key when the database changes, using a published change event or change data capture from the database log.
 - Keep a TTL as a backstop.
 
+
+## REL-CL-001 — Why does a concurrency limit protect a slow, expensive endpoint better than a rate limit does?
+
+Source: [Concurrency limits](../../wiki/reliability/concurrency-limits.md#what-a-concurrency-limit-counts)
+
+Expected points:
+
+- A rate limit caps how many requests start per unit of time; a concurrency limit caps how many are running at the same moment.
+- By Little's Law, in-flight work ≈ arrival rate × latency, so under a fixed rate limit in-flight work grows when latency rises.
+- Example: 10 requests per second at 4 seconds is about 40 in flight; at 20 seconds it is about 200, and the rate limiter does not stop it.
+- Under a concurrency limit a slot frees only when a request finishes, fails, or times out, so new work enters only as fast as old work completes.
+
+## REL-CL-002 — Each PDF render needs about 500 MB of heap and one CPU core; the pod has 4 GB of heap for renders and 3 cores, and a render takes 2 seconds. What limit do you choose, and what is the maximum throughput?
+
+Source: [Concurrency limits](../../wiki/reliability/concurrency-limits.md#choosing-the-limit)
+
+Expected points:
+
+- Compute a limit per resource and take the smallest: heap allows about 8 (fewer with headroom), CPU allows 3.
+- N = 3, because CPU is the binding constraint; more concurrent renders only time-share the cores and raise latency.
+- Maximum throughput is about N divided by duration: 3 ÷ 2 s ≈ 1.5 renders per second.
+- A limit set far below the binding constraint is also a failure mode, because it rejects work the pod could handle.
+
+## REL-CL-003 — A controller acquires a semaphore permit, calls an expensive service, then calls `release()` without a `finally` block. What happens after a period of exceptions, and how do you fix it?
+
+Source: [Concurrency limits](../../wiki/reliability/concurrency-limits.md#worked-example)
+
+Expected points:
+
+- Each exception skips `release()` and permanently leaks one permit.
+- Once all permits leak, the endpoint rejects every request with 503 even after the dependency recovers, until the instance restarts.
+- Release in `finally`, and only after a successful acquire.
+- Bound the wait for a permit (for example with `tryAcquire` and a short timeout) and fail fast with 503 and `Retry-After` rather than waiting indefinitely.
+
+## REL-CL-004 — Six pods each allow eight concurrent reports against a database budget of 24 connections, and the team wants to scale to twelve pods. What should change and what risk remains?
+
+Source: [Concurrency limits](../../wiki/reliability/concurrency-limits.md#limits-are-per-instance)
+
+Expected points:
+
+- Limits are per instance: 6 × 8 = 48 already exceeds the 24-connection budget.
+- With a shared resource, the per-pod limit is the shared budget divided by the pod count: 24 ÷ 12 = 2.
+- Scaling out adds no report capacity; the cluster still runs about 24 reports at once.
+- Small per-pod limits plus uneven load balancing can produce 503s on busy pods while others are idle, so watch the 503 rate.

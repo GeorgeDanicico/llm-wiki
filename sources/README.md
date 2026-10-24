@@ -20,6 +20,7 @@ Data-access notes are cataloged in the [data-access source index](notes/data-acc
 
 | Source | Type | Captured | Compiled knowledge |
 | --- | --- | --- | --- |
+| [`notes/reliability/concurrency-limits-learning-session.md`](notes/reliability/concurrency-limits-learning-session.md) | User-supplied learning-session summary | 2026-10-24 | [Library entry](../wiki/library/notes/concurrency-limits.md), [Concurrency limits](../wiki/reliability/concurrency-limits.md) |
 | [`notes/architecture/dependency-injection-learning-session.md`](notes/architecture/dependency-injection-learning-session.md) | User-supplied learning-session summary | 2026-10-22 | [Library entry](../wiki/library/notes/dependency-injection.md), [Dependency injection](../wiki/architecture/dependency-injection.md) |
 | [`notes/architecture/dependency-inversion-learning-session.md`](notes/architecture/dependency-inversion-learning-session.md) | User-supplied learning-session summary | 2026-10-22 | [Library entry](../wiki/library/notes/dependency-inversion.md), [Dependency inversion](../wiki/architecture/dependency-inversion.md) |
 | [`notes/reliability/write-through-caching-transactional-learning-session.md`](notes/reliability/write-through-caching-transactional-learning-session.md) | User-supplied learning-session summary | 2026-10-20 | [Library entry](../wiki/library/notes/write-through-caching-transactional.md), [Write-through caching](../wiki/reliability/write-through-caching.md) |

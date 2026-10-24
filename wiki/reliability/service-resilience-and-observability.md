@@ -13,6 +13,8 @@ Retries multiply traffic: two retries plus the initial attempt can produce three
 | Load shedding | Reject excess work before local queues and latency cause collapse |
 | Idempotency | Make repeated attempts converge on one intended business effect |
 
+For bounding in-flight work on one expensive endpoint, how to choose the limit, and what the request over the limit should receive, see [Concurrency limits](concurrency-limits.md). [Source](../../sources/notes/reliability/concurrency-limits-learning-session.md)
+
 A circuit breaker is a caller-side state decision, not a physical disconnection. Autoscaling is not a bulkhead and can worsen a downstream outage. An idempotency claim must be atomic—use a unique constraint, conditional insert, or transactional transition rather than check-then-insert. [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#83-circuit-breaker) [Source](../../sources/notes/interview-preparation/java-spring-senior-interview-knowledge.md#86-idempotency)
 
 Under a cache outage or a cache-miss storm, bound database concurrency, keep any waiting queue finite, and shed work beyond the safe residual backend capacity. The cache-stampede study note treats `503 Service Unavailable` with `Retry-After` as appropriate for temporary capacity loss and `429 Too Many Requests` as appropriate for deliberate client/request limiting; those response choices must still fit the service contract. [Source](../../sources/notes/reliability/cache-stampede-study-notes.md#9-redis-outage-and-load-shedding) See also [Cache stampedes](cache-stampedes.md).
