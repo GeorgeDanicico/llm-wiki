@@ -11,7 +11,7 @@ Client --write(k,v)--> Cache layer --1. write v--> Database
 Client <-----4. ack--------|
 ```
 
-The order is database first, cache second. If the database write fails, the cache must not keep the new value. The session noted that caching the value first and retrying the database write later is possible but complex; that is the direction of asynchronous persistence, which the catalog covers separately as write-behind. [Source](../../sources/notes/reliability/write-through-caching-learning-session.md#your-check-in-answers)
+The order is database first, cache second. If the database write fails, the cache must not keep the new value. The session noted that caching the value first and retrying the database write later is possible but complex; that is the direction of asynchronous persistence, which the catalog covers separately as [write-behind caching](write-behind-caching.md). [Source](../../sources/notes/reliability/write-through-caching-learning-session.md#your-check-in-answers)
 
 Compare [cache-aside](cache-aside.md) and [read-through caching](read-through-caching.md), which govern only reads and rely on invalidation after writes. Write-through is the write-path counterpart: the cache layer owns the write instead of leaving a stale entry behind.
 

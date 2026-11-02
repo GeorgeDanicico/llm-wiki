@@ -2,6 +2,7 @@
 
 Immutable source material about service reliability, caching, and downstream protection.
 
+- [104. Write-behind caching — learning session](write-behind-caching-learning-session.md) — user-supplied learning-session summary about the asynchronous write path, the loss window, crash, eviction, and flush-failure loss, a flusher bug that drops a write, and durability-based fit; captured on 2026-11-02.
 - [103. Write-through caching — second learning session](write-through-caching-transactional-learning-session.md) — user-supplied learning-session summary about write latency compared with cache-aside, the read-through pairing, a cache written before the transaction commits, bypassing writers, and write-heavy fit; captured on 2026-10-20.
 - [103. Write-through caching — learning session](write-through-caching-learning-session.md) — user-supplied learning-session summary about the synchronous write path, write latency, consistency assumptions, concurrent-writer staleness, and bypassing writers; captured on 2026-10-10.
 - [121. Connection versus request timeouts — learning session](connection-vs-request-timeouts-learning-session.md) — user-supplied learning-session summary about pool-acquisition, connect, read, and overall HTTP client timeouts and which wait each bounds; captured on 2026-10-08.
