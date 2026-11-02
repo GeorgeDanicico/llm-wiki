@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-11-02 — Write-behind caching learning session ingestion
+
+- Preserved the learning-session summary for topic 104 (write-behind caching) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Write-behind caching](wiki/reliability/write-behind-caching.md) page (asynchronous write path with batching and coalescing, the loss window, crash, eviction, and flush-failure loss, a flusher that drops a write, a gold-balance restart scenario, durability-based fit, Hazelcast and Redis remarks) and a library-note entry; linked it from the write-through caching page.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered five review questions (REL-WB-001 through REL-WB-005), which feed the flashcards.
+- The Hazelcast and Redis remarks were checked against their documentation at the end of the session; the worked examples and fit guidance are not externally verified. No conflicting wiki claims were identified.
+
 ## 2026-10-22 — Dependency injection learning session ingestion
 
 - Preserved the learning-session summary for topic 004 (dependency injection) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.

@@ -405,3 +405,53 @@ Expected points:
 - Invalidate the key when the database changes, using a published change event or change data capture from the database log.
 - Keep a TTL as a backstop.
 
+
+## REL-WB-001 — In write-behind caching, what is the loss window for one write, and where does the only copy of the write live during it?
+
+Source: [Write-behind caching](../../wiki/reliability/write-behind-caching.md#the-loss-window)
+
+Expected points:
+
+- The window runs from the acknowledgement to the caller until the database commit of that write.
+- During it the cache is the system of record for the dirty entry, and the cache usually lives in volatile memory (an in-process map or Redis).
+- After the commit, a crash costs only a cache miss, because the next read reloads the persisted value.
+
+## REL-WB-002 — Name three ways write-behind can lose a write the caller was already told succeeded.
+
+Source: [Write-behind caching](../../wiki/reliability/write-behind-caching.md#the-loss-window)
+
+Expected points:
+
+- The cache node crashes or restarts before the flush.
+- A dirty entry is evicted under memory pressure.
+- The flush fails and the flusher drops the batch.
+
+## REL-WB-003 — Why is a failed database write worse in write-behind than in write-through?
+
+Source: [Write-behind caching](../../wiki/reliability/write-behind-caching.md#the-loss-window)
+
+Expected points:
+
+- In write-through the caller waits for the commit, so a failure comes back as an error and the caller can retry.
+- In write-behind the caller already received "OK", so it believes the write succeeded and will not retry.
+- The error has nobody to go to unless the flusher retries, dead-letters, or alerts.
+
+## REL-WB-004 — A flusher removes a key from the dirty set and then calls the database, which throws. What happens to the write, and how do you fix the flusher?
+
+Source: [Write-behind caching](../../wiki/reliability/write-behind-caching.md#worked-example-a-flush-failure-that-loses-a-write)
+
+Expected points:
+
+- The key is no longer dirty, so no later flush retries it and the database keeps the old value permanently while the cache shows the new one.
+- Clear the dirty mark only after the commit succeeds, and only if the cached value did not change during the flush.
+- The fix covers flush failures but not a crash of the JVM or cache node, because the data is still only in RAM.
+
+## REL-WB-005 — Gold balances are cached with write-behind (Redis without persistence, 10-second flush). Redis restarts 4 seconds after a purchase. What does the player see, and what would you change?
+
+Source: [Write-behind caching](../../wiki/reliability/write-behind-caching.md#worked-example-a-restart-before-or-after-the-flush)
+
+Expected points:
+
+- The dirty balance is lost and the cache reloads the pre-purchase balance from Postgres, so the deduction disappears (possibly a free item).
+- The system falls back to the last persisted state, not the last acknowledged one; a restart after a successful flush would only cost a cache miss.
+- Currency needs a synchronous database commit; a durable cache such as Redis AOF only shrinks the window.

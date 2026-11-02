@@ -12,6 +12,7 @@
 - [103. Write-through caching — learning session](write-through-caching.md) — user-supplied learning-session summary covering the synchronous write path, write latency, consistency assumptions, concurrent-writer staleness, and bypassing writers.
 - [103. Write-through caching — second learning session](write-through-caching-transactional.md) — user-supplied learning-session summary covering the latency comparison with cache-aside, the read-through pairing, a cache written before the transaction commits, bypassing writers, and write-heavy fit.
 - [121. Connection versus request timeouts — learning session](connection-vs-request-timeouts.md) — user-supplied learning-session summary covering pool-acquisition, connect, read, and overall timeouts and which wait each bounds.
+- [104. Write-behind caching — learning session](write-behind-caching.md) — user-supplied learning-session summary covering the asynchronous write path, the loss window, crash, eviction, and flush-failure loss, and durability-based fit.
 - [Cache Stampedes — Study Notes](cache-stampedes.md) — user-supplied study note covering cache-miss storms, coalescing, expiry jitter, stale serving, and overload protection.
 - [Optimistic Locking](optimistic-locking.md) — user-supplied learning note covering version checks, safe retries, JPA, and stale-form reconciliation.
 
