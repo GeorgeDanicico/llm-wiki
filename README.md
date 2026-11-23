@@ -8,6 +8,7 @@ A small, Git-backed personal knowledge base built from immutable Markdown source
 - Inspect original material in [`sources/`](sources/README.md).
 - Study with the per-topic review questions listed in [`learning/questions.md`](learning/questions.md).
 - Study on the [study site](#study-site): a daily review, wiki pages to learn, and practice flashcards, generated from the wiki and its questions on every push to `main`.
+- Browse the [public site](#public-site-on-github-pages) on [GitHub Pages](https://georgedanicico.github.io/llm-wiki/): a topic and a question of the day, random questions, the notes, and every question as a flashcard.
 - Review repository activity in [`log.md`](log.md).
 
 ## How the repository is organized
@@ -18,6 +19,7 @@ wiki/      Editable synthesis organized by topic and source type
 learning/  Active-recall questions and review history
 scripts/   Validation, the Markdown renderer, and the study-site build (Python standard library only)
 site/      Static study app; served with generated cards and Learn pages
+site-basic/  Public site for GitHub Pages; same generated data, nothing saved
 server/    Progress server for the study site (Python standard library, SQLite)
 tests/     Python unit tests (python3 -m unittest discover -s tests)
 log.md     Significant ingestion and maintenance operations
@@ -53,7 +55,7 @@ Scheduling uses Leitner boxes with intervals of 1, 2, 4, 8, 16, and 32 days, der
 
 - **VPS (primary).** The `Dockerfile` builds `_site/` inside the image and runs `server/progress_server.py`, which serves the site and stores progress in SQLite (`/data/progress.db`, mounted from `/var/lib/llm-wiki` on the host, with a daily `VACUUM INTO` snapshot in `/data/backups`, 30 kept). The [vps-apps](https://github.com/GeorgeDanicico/vps-apps) repository deploys it with `docker-compose.yml` on every push to `main`, behind the host's TLS reverse proxy. The build never writes into the host's wiki checkout.
 - **Sync.** Each device keeps working in its own browser storage and syncs with the server when it has a device token: on start, when it comes back to the foreground or online, a few seconds after a grade, and every five minutes. The header shows **Synced**, **Saving…**, **Offline · N pending**, or **Disconnected**. Paste a token once under **Settings → Sync across devices**; connecting uploads the device's existing progress, and the merge rule (newer timestamp wins) makes that safe. Phone and laptop then share one review log, schedule, and streak.
-- **GitHub Pages (local-only fallback).** The **Deploy flashcards** workflow still publishes the same site to [GitHub Pages](https://georgedanicico.github.io/llm-wiki/). There is no server there, so progress stays in that browser; move it with **Export** and **Import**.
+- **GitHub Pages.** Pages publishes the [public site](#public-site-on-github-pages) instead, which has no progress tracking. To study with tracking but without the VPS, run the full app locally (below); progress then stays in that browser, and **Export** and **Import** move it.
 
 Device tokens are random strings; the server stores only their SHA-256 hashes, in `PROGRESS_TOKEN_HASHES=<device>:<hex>,…` in `/etc/llm-wiki/study.env`. To add a device, create a token and record its hash:
 
@@ -64,14 +66,31 @@ printf %s '<token>' | sha256sum
 
 To revoke a device, remove its entry and redeploy or restart the container; that device then shows **Disconnected** and keeps its local progress. `GET /api/export` (with a token) returns every stored row in the app's import format. Server settings are documented at the top of [`server/progress_server.py`](server/progress_server.py).
 
+### Public site on GitHub Pages
+
+The **Deploy public site** workflow runs `python3 scripts/build_flashcards.py --site basic` and publishes the result to [GitHub Pages](https://georgedanicico.github.io/llm-wiki/). It is a small static front end in `site-basic/` over the same generated `cards.json` and `learn/` files, plus the full app's icons. It has four views:
+
+- **Today** — the topic and question of the day. The question depends only on the visitor's local date and the question bank, so everyone sees the same one, and it changes at midnight. Questions are dealt from a shuffled deck, so none repeats until every question has been shown once. Adding or removing questions reshuffles the deck. The topic of the day is the wiki page that supports the question.
+- **Notes** — every topic page in wiki index order, with the same reader as Learn: a section list, the page, its questions, and previous and next pages.
+- **Questions** — every question as a flashcard, by topic, with a filter.
+- **Random** — a random question, with **Another question** (`N`) and `Space` to show the answer.
+
+Nothing is tracked or saved: there is no progress, account, sync, or service worker. Browsers that installed the full app from GitHub Pages get `site-basic/sw.js` on their next visit, which deletes the old app's caches, unregisters itself, and reloads the page. Keep that file published. Wiki links between pages use the full app's `#/learn/...` routes, and old `#/practice/...` and card links such as `#DATA-OL-004` still work.
+
 ### Tests and local preview
 
-The scheduling, storage, and sync code has unit tests (`node --test site/js/lib/*.test.mjs`); the renderer, Learn build, service worker build, and progress server have Python tests (`python3 -m unittest discover -s tests`). Both run in `validate.yml`.
+The scheduling, storage, and sync code and the public site's daily pick and routes have unit tests (`node --test site/js/lib/*.test.mjs site-basic/js/*.test.mjs`); the renderer, Learn build, service worker build, site variants, and progress server have Python tests (`python3 -m unittest discover -s tests`). Both run in `validate.yml`.
 
-To preview without sync:
+To preview the full app without sync:
 
 ```bash
 python3 scripts/build_flashcards.py && python3 -m http.server --directory _site
+```
+
+To preview the public site:
+
+```bash
+python3 scripts/build_flashcards.py --site basic && python3 -m http.server --directory _site
 ```
 
 To run the site with the progress server locally (use throwaway test tokens):

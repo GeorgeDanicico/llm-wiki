@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LLM Wiki</title>
+  <meta name="description" content="A daily topic and question, notes, and flashcards from a personal software-engineering wiki.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1d23" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <h1><a href="#/">LLM Wiki</a></h1>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#/" data-tab="home">Today</a>
+        <a href="#/notes" data-tab="notes">Notes</a>
+        <a href="#/questions" data-tab="questions">Questions</a>
+        <a href="#/random" data-tab="random">Random</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" id="view">
+    <p class="message">Loading…</p>
+  </main>
+
+  <footer class="wrap footer">
+    <p>
+      Generated from <a id="repo-link" href="https://github.com/GeorgeDanicico/llm-wiki">the wiki</a><span id="generated"></span>.
+      Nothing you do here is tracked or saved.
+    </p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
