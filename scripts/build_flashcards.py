@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
-"""Build the study site into _site/ for GitHub Pages.
+"""Build a study site into _site/.
 
-Copies the static app from site/ (without its unit tests) and generates:
+There are two front ends over the same generated data:
+
+  --site full   (default) the full study app from site/, with review tracking,
+                sync, and a service worker; served by the progress server on the VPS.
+  --site basic  the public site from site-basic/: today's topic and question,
+                random questions, notes, and flashcards, with nothing saved;
+                published on GitHub Pages. It reuses site/icons/.
+
+Copies the static app (without its unit tests) and generates:
 
   _site/cards.json                 the review questions in learning/questions/;
   _site/learn/index.json           the Learn topics and pages, in wiki index order;
   _site/learn/<topic>/<page>.html  each topic page rendered as an HTML fragment;
-  _site/sw.js                      the service worker, with this build's version and file list.
+  _site/sw.js                      the full app's service worker, with this build's version and
+                                   file list (the basic site ships a fixed worker that retires it).
 
 The question files and wiki pages remain the single source of truth; never edit
 the generated output. Pages are rendered by scripts/wiki_markdown.py, which
@@ -17,12 +26,13 @@ from Git history. Without full history, for example in a shallow clone, the
 field is left out and the app shows no "New" badges.
 
 Usage:
-  python3 scripts/build_flashcards.py
+  python3 scripts/build_flashcards.py [--site full|basic]
   python3 -m http.server --directory _site   # preview at http://localhost:8000
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import html
 import json
@@ -42,6 +52,9 @@ from question_bank import ID_PATTERN, QUESTION_DIR, REPO_ROOT, load_questions  #
 from wiki_markdown import UnsupportedMarkdown, is_external, render, render_inline  # noqa: E402
 
 SITE_SRC = REPO_ROOT / "site"
+BASIC_SITE_SRC = REPO_ROOT / "site-basic"
+# Files the basic site takes from the full app.
+BASIC_SHARED = ("icons",)
 OUTPUT = REPO_ROOT / "_site"
 WIKI_DIR = REPO_ROOT / "wiki"
 DEFAULT_REPOSITORY = "GeorgeDanicico/llm-wiki"
@@ -62,7 +75,14 @@ class BuildError(Exception):
     pass
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Build a study site into _site/.")
+    parser.add_argument(
+        "--site", choices=("full", "basic"), default="full",
+        help="full: the study app for the VPS (default); basic: the public GitHub Pages site",
+    )
+    variant = parser.parse_args(argv).site
+
     questions = load_questions()
     broken = [q for q in questions if q.errors or not q.id]
     if broken:
@@ -106,7 +126,7 @@ def main() -> int:
 
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
-    shutil.copytree(SITE_SRC, OUTPUT, ignore=shutil.ignore_patterns(*SKIPPED_SITE_FILES))
+    copy_site(variant, OUTPUT)
     for relative, fragment in learn_pages.items():
         target = OUTPUT / "learn" / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -121,16 +141,29 @@ def main() -> int:
         "cards": cards,
     }
     (OUTPUT / "cards.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
-    try:
-        version = write_service_worker(OUTPUT, stable={"cards.json": {**payload, "generated": None}})
-    except BuildError as error:
-        print(f"✗ {error}")
-        return 1
+    build = "basic site"
+    if variant == "full":
+        try:
+            build = "build " + write_service_worker(OUTPUT, stable={"cards.json": {**payload, "generated": None}})
+        except BuildError as error:
+            print(f"✗ {error}")
+            return 1
     print(
         f"✓ Built {len(cards)} cards in {len(topics)} topics and {len(learn_pages)} Learn pages "
-        f"in {len(learn_index['topics'])} topics into {OUTPUT.relative_to(REPO_ROOT)}/ (build {version})"
+        f"in {len(learn_index['topics'])} topics into {OUTPUT.relative_to(REPO_ROOT)}/ ({build})"
     )
     return 0
+
+
+def copy_site(variant: str, output: Path) -> None:
+    """Copy the static front end for `variant` into `output`, which must not exist."""
+    ignore = shutil.ignore_patterns(*SKIPPED_SITE_FILES)
+    if variant == "full":
+        shutil.copytree(SITE_SRC, output, ignore=ignore)
+        return
+    shutil.copytree(BASIC_SITE_SRC, output, ignore=ignore)
+    for name in BASIC_SHARED:
+        shutil.copytree(SITE_SRC / name, output / name, ignore=ignore)
 
 
 def write_service_worker(output: Path, stable: dict[str, object]) -> str:

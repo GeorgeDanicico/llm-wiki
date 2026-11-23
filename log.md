@@ -1,5 +1,12 @@
 # Wiki Log
 
+## 2026-11-23 — Public GitHub Pages site
+
+- Added `site-basic/`, a small public front end for GitHub Pages over the same generated cards and Learn pages: a topic and question of the day (date-seeded, the same for every visitor, no repeats within a cycle), random questions, the notes, and every question as a flashcard. It saves nothing.
+- Added `--site basic` to `scripts/build_flashcards.py` and switched the Pages workflow to it; the VPS image still builds the full study app with tracking and sync.
+- Replaced the full app's service worker on Pages with one that clears its caches and unregisters itself, so browsers that installed the old app switch over on their next visit.
+- Added JavaScript tests for the daily pick and routes, and Python tests for the site variants.
+
 ## 2026-10-22 — Dependency injection learning session ingestion
 
 - Preserved the learning-session summary for topic 004 (dependency injection) verbatim beneath capture metadata as a new immutable source under `sources/notes/architecture/`.

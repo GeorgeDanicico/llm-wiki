@@ -1,4 +1,4 @@
-name: Deploy flashcards
+name: Deploy public site
 
 on:
   push:
@@ -30,8 +30,10 @@ jobs:
       - name: Validate wiki
         run: python scripts/validate.py
 
-      - name: Build flashcards
-        run: python scripts/build_flashcards.py
+      # The public site (site-basic/): daily topic and question, notes, and
+      # flashcards, with nothing saved. The full study app runs on the VPS.
+      - name: Build the public site
+        run: python scripts/build_flashcards.py --site basic
 
       - uses: actions/upload-pages-artifact@v3
         with:
