@@ -405,3 +405,43 @@ Expected points:
 - Invalidate the key when the database changes, using a published change event or change data capture from the database log.
 - Keep a TTL as a backstop.
 
+
+## REL-CIR-001 — In cache-aside with update-then-delete, how can a reader put a stale value back into the cache after the writer's delete?
+
+Source: [Cache invalidation races](../../wiki/reliability/cache-invalidation-races.md#the-race)
+
+Expected points:
+
+- The reader's miss path (read from the database, then write to the cache) is not atomic.
+- The reader reads the old value, then pauses; the writer commits the new value and deletes the key, which is still empty.
+- The reader's late `SET` writes the old value, so the invalidation is lost.
+
+## REL-CIR-002 — After an invalidation race, how long does the stale value stay in the cache?
+
+Source: [Cache invalidation races](../../wiki/reliability/cache-invalidation-races.md#how-long-the-stale-value-lives)
+
+Expected points:
+
+- Until the TTL expires, counted from the reader's late `SET`, not from the write.
+- Or until the next write's delete clears it.
+- With no TTL it can stay indefinitely, so the TTL is the safety net that caps the damage.
+
+## REL-CIR-003 — Given an interleaved timeline of a cache-aside reader and a writer, what one question tells you whether the cache ends stale?
+
+Source: [Cache invalidation races](../../wiki/reliability/cache-invalidation-races.md#reading-a-timeline)
+
+Expected points:
+
+- Which happened last: the reader's `SET` or the writer's `DEL`?
+- If the `SET` came last, the cache holds the stale value.
+- If the `DEL` came last, it removes the stale value and the next read loads the fresh one.
+
+## REL-CIR-004 — A teammate proposes deleting the cache key before updating the database to avoid stale reads. Does it work?
+
+Source: [Cache invalidation races](../../wiki/reliability/cache-invalidation-races.md#delete-first-does-not-fix-it)
+
+Expected points:
+
+- No: it widens the race window.
+- Between the delete and the commit, any reader misses, reads the old value from the database, and caches it.
+- A database failure after the delete is mostly harmless (one extra miss); the real problem is the larger window.
