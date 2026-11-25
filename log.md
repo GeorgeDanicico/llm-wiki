@@ -1,5 +1,13 @@
 # Wiki Log
 
+## 2026-11-25 — Cache invalidation races learning session ingestion
+
+- Preserved the learning-session summary for topic 106 (cache invalidation races) verbatim beneath capture metadata as a new immutable source under `sources/notes/reliability/`.
+- Added a focused [Cache invalidation races](wiki/reliability/cache-invalidation-races.md) page (non-atomic reader fill, TTL-bounded damage counted from the late `SET`, a Spring and Redis example, `SET`-versus-`DEL` timeline reading, why delete-first widens the window, mitigations named but not taught) and a library-note entry; linked it from the cache-aside page.
+- Preserved the tutor's and the learner's different framings of the safe ordering (separate systems with no spanning transaction versus a serial-units teaching model) without treating either as wrong.
+- Updated reliability, library-note, source-category, source-catalog, and root indexes; registered four review questions (REL-CIR-001 through REL-CIR-004), which feed the flashcards.
+- No documentation was fetched during the session; the mitigations are marked unverified. No conflicting wiki claims were identified.
+
 ## 2026-11-23 — Public GitHub Pages site
 
 - Added `site-basic/`, a small public front end for GitHub Pages over the same generated cards and Learn pages: a topic and question of the day (date-seeded, the same for every visitor, no repeats within a cycle), random questions, the notes, and every question as a flashcard. It saves nothing.
